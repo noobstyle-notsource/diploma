@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID_MARKET Terminal - Тоглочинд Зориулсан Дэлгэмэл Систем</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Inter:wght@400;600;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #00ff41;
+            line-height: 1.6;
+            padding: 40px;
+        }
+        
+        .pdf-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #000;
+            border: 2px solid #00ff41;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 0 40px rgba(0, 255, 65, 0.3);
+        }
+        
+        .pdf-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 65, 0.03) 2px,
+                    rgba(0, 255, 65, 0.03) 4px
+                );
+            pointer-events: none;
+        }
+        
+        h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+        }
+        
+        h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 30px 0 15px 0;
+            color: #00ff41;
+            border-bottom: 2px solid #00ff41;
+            padding-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        h3 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 20px 0 10px 0;
+            color: #00ff41;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.7;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        .highlight-box {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .tech-item {
+            background: rgba(0, 255, 65, 0.05);
+            padding: 12px;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            padding: 20px;
+            border-radius: 4px;
+        }
+        
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        
+        li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+        
+        li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #00ff41;
+            font-size: 12px;
+        }
+        
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .price-table th,
+        .price-table td {
+            border: 1px solid #00ff41;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .price-table th {
+            background: rgba(0, 255, 65, 0.1);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+        
+        .price {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #00ff41;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #00ff41;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .terminal-info {
+            background: rgba(0, 255, 65, 0.05);
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+        }
+        
+        .generate-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #00ff41;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 4px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .generate-btn:hover {
+            background: #00cc33;
+            transform: scale(1.05);
+        }
+        
+        @media print {
+            .generate-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pdf-container" id="pdfContent">
+        <h1>VOID_MARKET Terminal</h1>
+        <div class="subtitle">Тоглочинд Зориулсан Дэлгэмэл Систем</div>
+        <div class="subtitle">Дипломийн Ажил / Fiverr Төсөл</div>
+        
+        <div class="terminal-info">
+            PROJECT_ID: VOID_MARKET_V1.2<br>
+            STATUS: READY_FOR_DEPLOYMENT<br>
+            TECH_STACK: REACT_19 + TYPESCRIPT + TAILWIND<br>
+            LAST_UPDATED: 2025.05.01
+        </div>
+        
+        <h2>🎯 Төслийн Ерөнхий Танилцуулга</h2>
+        <p>VOID_MARKET Terminal бол retro-brutalist загварын, дэвшилтэт технологиор хангагдсан тоглочинд зориулсан онлайн маркетплейс интерфэйс юм. Энэхүү систем нь гамерын хэрэгцээнд зориулж gaming gear, boosting сервис, coaching, аккаунт түрээс зэрэг үйлчилгээг нэг дор цуглуулсан платформ болно.</p>
+        
+        <div class="tech-stack">
+            <div class="tech-item">Frontend: React 19 + TypeScript</div>
+            <div class="tech-item">Styling: Tailwind CSS + Custom CSS</div>
+            <div class="tech-item">Animation: Motion/Framer Motion</div>
+            <div class="tech-item">Build Tool: Vite 6</div>
+            <div class="tech-item">UI Components: Lucide React</div>
+            <div class="tech-item">Backend: Express.js + Gemini AI</div>
+        </div>
+        
+        <h2>🚀 Үндсэн Чадвар ба Боломжууд</h2>
+        
+        <h3>Terminal-Style Interface</h3>
+        <ul>
+            <li>CRT монитор эффекттэй retro terminal дизайн</li>
+            <li>Scanlines, static noise, vignette эффектүүд</li>
+            <li>Phosphorescent glow бүхий ногоон өнгөтэй theme</li>
+            <li>Real-time terminal animation ба cursor effects</li>
+        </ul>
+        
+        <h3>Үндсэн Үйлчилгээний Модулиуд</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🛒</div>
+                <h3>GEAR (Тоног төхөөрөмж)</h3>
+                <ul>
+                    <li>Gaming hardware, peripherals</li>
+                    <li>Product catalog ба search</li>
+                    <li>Price comparison ба reviews</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>BOOSTING (Дэвшүүлэх)</h3>
+                <ul>
+                    <li>Rank boosting сервисүүд</li>
+                    <li>Game-specific packages</li>
+                    <li>Professional booster profiles</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎓</div>
+                <h3>COACHING (Сургалт)</h3>
+                <ul>
+                    <li>Game coaching sessions</li>
+                    <li>Professional player training</li>
+                    <li>Skill development programs</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <h3>RENTING (Түрээс)</h3>
+                <ul>
+                    <li>Gaming accounts түрээс</li>
+                    <li>Equipment rental</li>
+                    <li>Time-based access control</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>🔒 Security & Payment Integration</h2>
+        <div class="highlight-box">
+            <ul>
+                <li>AES-256 encryption</li>
+                <li>Secure payment gateway (Credit Card, PayPal, Crypto)</li>
+                <li>User authentication system</li>
+                <li>Transaction history ба tracking</li>
+            </ul>
+        </div>
+        
+        <h2>🤖 AI-Powered Features</h2>
+        <ul>
+            <li>Google Gemini AI integration</li>
+            <li>Smart recommendation system</li>
+            <li>Automated customer support</li>
+            <li>Content moderation</li>
+        </ul>
+        
+        <h2>🎨 Дизайн ба UX Хэлбэлзүүлэлт</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>Visual Design Elements</h3>
+                <ul>
+                    <li>Color Scheme: Matrix-style ногоон (#00ff41)</li>
+                    <li>Typography: Monospace fonts</li>
+                    <li>Layout: Grid-based, responsive</li>
+                    <li>Animations: Smooth transitions</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>User Experience</h3>
+                <ul>
+                    <li>Intuitive navigation system</li>
+                    <li>Real-time search functionality</li>
+                    <li>Interactive terminal commands</li>
+                    <li>Mobile-responsive design</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>💰 Fiverr-д Зориулсан Үйлчилгээний Багц</h2>
+        <table class="price-table">
+            <thead>
+                <tr>
+                    <th>Package</th>
+                    <th>Үнэ</th>
+                    <th>Үндсэн боломжууд</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Basic Terminal</strong></td>
+                    <td class="price">$500</td>
+                    <td>Core interface, Basic listings, Auth, Payment</td>
+                </tr>
+                <tr>
+                    <td><strong>Advanced Platform</strong></td>
+                    <td class="price">$1,200</td>
+                    <td>All Basic + AI recommendations, Coaching, Analytics, Mobile</td>
+                </tr>
+                <tr>
+                    <td><strong>Enterprise Solution</strong></td>
+                    <td class="price">$2,500</td>
+                    <td>All Advanced + Custom branding, API, Support, White-label</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>📈 Хөгжүүлэлтийн шатлал</h2>
+        <div class="highlight-box">
+            <h3>Phase 1: Foundation (2-3 долоо хоног)</h3>
+            <ul>
+                <li>Core interface development</li>
+                <li>Basic functionality implementation</li>
+                <li>Database setup</li>
+            </ul>
+            
+            <h3>Phase 2: Features (3-4 долоо хоног)</h3>
+            <ul>
+                <li>Service modules integration</li>
+                <li>Payment system setup</li>
+                <li>User testing</li>
+            </ul>
+            
+            <h3>Phase 3: Launch (1-2 долоо хоног)</h3>
+            <ul>
+                <li>Final testing</li>
+                <li>Deployment</li>
+                <li>Marketing preparation</li>
+            </ul>
+        </div>
+        
+        <h2>🔍 Техникийн Шаардлага</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>Server Requirements</h3>
+                <ul>
+                    <li>Node.js 18+</li>
+                    <li>MongoDB/PostgreSQL</li>
+                    <li>Redis for caching</li>
+                    <li>CDN for static assets</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>Client Requirements</h3>
+                <ul>
+                    <li>Modern web browser</li>
+                    <li>Minimum 4GB RAM</li>
+                    <li>Stable internet connection</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>📞 Холбогдох Мэдээлэл</h2>
+        <div class="terminal-info">
+            ТӨСЛИЙН ХӨГЖҮҮЛЭГЧ: [Your Name]<br>
+            FIVERR PROFILE: [Your Fiverr Link]<br>
+            EMAIL: [Your Email]<br>
+            DISCORD: [Your Discord]
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 VOID_MARKET Terminal - All Rights Reserved</p>
+            <p>Энэхүү төсөл нь орчин үеийн гейминг индустрийн хэрэгцээнд тулгуурлан, дэвшилтэт технологи, аюулгүй байдал, брэнд бүхий platform бүтээхэд чиглэсэн бөгөөд Fiverr дээрх үйлчилгээний чанар, үр ашгийг баталгаажуулах зорилготой.</p>
+        </div>
+    </div>
+    
+    <button class="generate-btn" onclick="generatePDF()">PDF руу Хөрвүүлэх</button>
+    
+    <script>
+        function generatePDF() {
+            const element = document.getElementById('pdfContent');
+            const opt = {
+                margin: 10,
+                filename: 'VOID_MARKET_Terminal_Project_Description.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>
