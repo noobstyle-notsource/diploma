@@ -17,8 +17,8 @@ export default function Navbar() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const navLinks = [
-    { name: 'Services', path: '/services' },
-    { name: 'Products', path: '/products' },
+    { name: 'Үйлчилгээ', path: '/services' },
+    { name: 'Бүтээгдэхүүн', path: '/products' },
   ];
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function Navbar() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search sanctuary..."
+              placeholder="Хайх..."
               className="bg-surface-container-highest/40 border border-primary/20 rounded-full py-2.5 px-12 text-sm w-48 focus:w-80 focus:ring-2 focus:ring-primary focus:bg-surface-container-highest focus:border-primary outline-none transition-all shadow-[0_0_15px_rgba(0,255,204,0.05)] focus:shadow-[0_0_25px_rgba(0,255,204,0.2)]"
             />
             {search && (
@@ -95,11 +95,11 @@ export default function Navbar() {
               <>
                 {(userRole === 'admin' || userRole === 'owner' || userRole === 'moderator') && (
                   <Link to="/admin" className="flex items-center gap-1.5 text-primary hover:drop-shadow-[0_0_12px_rgba(0,255,204,0.8)] transition-all text-xs font-black uppercase tracking-widest mr-2">
-                    <ShieldCheck className="w-4 h-4" /> Admin
+                    <ShieldCheck className="w-4 h-4" /> Админ
                   </Link>
                 )}
                 <Link to="/seller/add" className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.5)] transition-all text-xs font-black uppercase tracking-widest mr-2">
-                  <PlusCircle className="w-4 h-4" /> Deploy
+                  <PlusCircle className="w-4 h-4" /> Нийтлэх
                 </Link>
 
                 <Link to="/messages" className="text-on-surface-variant hover:text-primary hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.5)] transition-all relative">
@@ -118,10 +118,10 @@ export default function Navbar() {
             ) : (
               <>
                 <Link to="/login" className="flex items-center gap-2 text-on-surface-variant hover:text-primary hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.5)] transition-all text-xs font-black uppercase tracking-widest">
-                  <LogIn className="w-4 h-4" /> Login
+                  <LogIn className="w-4 h-4" /> Нэвтрэх
                 </Link>
                 <Link to="/register" className="bg-gradient-to-r from-primary to-secondary text-on-primary px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(0,255,204,0.4)] hover:shadow-[0_0_35px_rgba(0,255,204,0.7)] hover:scale-105 active:scale-95 transition-all">
-                  Sign Up
+                  Бүртгүүлэх
                 </Link>
               </>
             )}

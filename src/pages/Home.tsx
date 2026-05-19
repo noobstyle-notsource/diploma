@@ -63,23 +63,23 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-surface-container-highest/60 border border-primary/40 backdrop-blur-2xl mb-8 shadow-[0_0_25px_rgba(0,255,204,0.2)] hover:shadow-[0_0_35px_rgba(0,255,204,0.4)] hover:border-primary transition-all">
               <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse shadow-[0_0_12px_rgba(0,255,204,1)]" />
-              <span className="text-xs font-black uppercase tracking-[0.3em] text-primary drop-shadow-[0_0_8px_rgba(0,255,204,0.5)]">ZEN-GAMER NEXUS: V2.0 ACTIVE</span>
+              <span className="text-xs font-black uppercase tracking-[0.3em] text-primary drop-shadow-[0_0_8px_rgba(0,255,204,0.5)]">ZEN-GAMER NEXUS: V2.0 ИДЭВХТЭЙ</span>
             </div>
             
             <h1 className="text-headline-xxl font-display font-black text-on-surface mb-8 leading-[0.9] tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
-              BEYOND <br /> <span className="text-gradient-cyber italic">THE LIMIT.</span>
+              ХЯЗГААРААС <br /> <span className="text-gradient-cyber italic">ЦААШ.</span>
             </h1>
             
             <p className="max-w-3xl mx-auto text-xl md:text-2xl text-on-surface-variant font-medium mb-14 leading-relaxed drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
-              The world's most premium sanctuary for elite competitive advantages. Deploy top-tier neural hardware and global master-class operators.
+              Шилдэг өрсөлдөөний давуу талыг олгох дэлхийн хамгийн дээд зэрэглэлийн платформ. Шилдэг техник хангамж, дэлхийн түвшний мастер операторуудыг ашигла.
             </p>
 
             <div className="flex flex-col md:flex-row items-center justify-center gap-6">
               <Link to="/services" className="px-12 py-5 bg-gradient-to-r from-primary via-tertiary to-secondary text-on-primary rounded-[24px] font-black uppercase tracking-[0.2em] text-sm shadow-[0_0_30px_rgba(0,255,204,0.5)] hover:shadow-[0_0_50px_rgba(0,255,204,0.8)] hover:scale-105 active:scale-95 transition-all duration-300">
-                Explore The Nexus
+                Хайгуул хийх
               </Link>
               <Link to="/about" className="px-12 py-5 bg-surface-container-highest/40 text-on-surface rounded-[24px] font-black uppercase tracking-[0.2em] text-sm border border-primary/30 backdrop-blur-xl hover:bg-surface-container-highest/80 hover:border-primary hover:shadow-[0_0_25px_rgba(0,255,204,0.2)] hover:scale-105 active:scale-95 transition-all duration-300">
-                Learn The Mission
+                Бидний тухай
               </Link>
             </div>
           </motion.div>
@@ -92,17 +92,17 @@ export default function Home() {
           <div className="flex flex-col items-center md:items-start px-8 group">
             <TrendingUp className="w-10 h-10 text-primary mb-4 group-hover:scale-125 transition-transform drop-shadow-[0_0_12px_rgba(0,255,204,0.8)]" />
             <span className="text-4xl font-display font-black text-on-surface group-hover:text-primary transition-colors">1.2M+</span>
-            <span className="text-xs font-black uppercase tracking-widest text-primary/70 mt-1">Deployments Handled</span>
+            <span className="text-xs font-black uppercase tracking-widest text-primary/70 mt-1">Нийт Гүйцэтгэл</span>
           </div>
           <div className="flex flex-col items-center md:items-start px-8 group">
             <Users className="w-10 h-10 text-secondary mb-4 group-hover:scale-125 transition-transform drop-shadow-[0_0_12px_rgba(191,127,255,0.8)]" />
             <span className="text-4xl font-display font-black text-on-surface group-hover:text-secondary transition-colors">45K+</span>
-            <span className="text-xs font-black uppercase tracking-widest text-secondary/70 mt-1">Verified Operators</span>
+            <span className="text-xs font-black uppercase tracking-widest text-secondary/70 mt-1">Баталгаажсан Тоглогчид</span>
           </div>
           <div className="flex flex-col items-center md:items-start px-8 group">
             <Trophy className="w-10 h-10 text-tertiary mb-4 group-hover:scale-125 transition-transform drop-shadow-[0_0_12px_rgba(0,191,255,0.8)]" />
             <span className="text-4xl font-display font-black text-on-surface group-hover:text-tertiary transition-colors">99.8%</span>
-            <span className="text-xs font-black uppercase tracking-widest text-tertiary/70 mt-1">Satisfaction Index</span>
+            <span className="text-xs font-black uppercase tracking-widest text-tertiary/70 mt-1">Сэтгэл ханамж</span>
           </div>
         </div>
       </section>
@@ -111,13 +111,13 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-6 md:px-10 py-32 relative z-20">
         <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
           <div className="max-w-3xl">
-            <h2 className="text-headline-xl text-on-surface mb-4 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Elite Categories</h2>
+            <h2 className="text-headline-xl text-on-surface mb-4 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Шилдэг ангиллууд</h2>
             <p className="text-on-surface-variant font-medium text-lg md:text-xl leading-relaxed">
-              Every listing in our sanctuary is parsed for extreme fidelity, ensuring you only access the absolute highest tier of competitive advantages.
+              Бидний сан дахь жагсаалт бүр нь танд зөвхөн хамгийн өндөр түвшний өрсөлдөөний давуу талыг олгохын тулд нарийн шалгагдсан байдаг.
             </p>
           </div>
           <Link to="/services" className="text-primary text-sm font-black uppercase tracking-[0.2em] flex items-center gap-3 group hover:gap-5 transition-all pb-2 border-b-2 border-primary/40 hover:border-primary drop-shadow-[0_0_8px_rgba(0,255,204,0.5)]">
-            View All Sectors <ArrowRight className="w-4 h-4" />
+            Бүгдийг харах <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
         
@@ -126,9 +126,9 @@ export default function Home() {
             <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzYIoKsBQnt7HyYJCHw-GX7BfkLces7U-9gbuu-7dTiu7V4o80w8X7f2-T1-tA3DeIONu1CwXx1ypgvn3ibL_waQ2b9ZeQK8LeKyz0C_7JGGbzox5MLEhTp06Ogz1nGQEsDv6EfcswIZZAH8Z3tQ2E5rNk4eozkcsSY7LB-wnxhurTQ89wUKrhef2QzRTid7GPJv05IFbbIUSnkuHFJgHro12ByIJGGGKovtqW_GF1twbQmDKlftIAOl_cEpcz5PgJY8O_WlUKEYkW" 
               className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 mix-blend-luminosity group-hover:mix-blend-normal" alt="Coaching" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent p-12 flex flex-col justify-end z-10">
-              <span className="text-xs font-black uppercase tracking-[0.3em] text-primary mb-3 drop-shadow-[0_0_8px_rgba(0,255,204,0.8)]">Tactical Training</span>
-              <h3 className="text-4xl font-display font-black text-on-surface mb-3 group-hover:text-primary transition-colors drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Pro Coaching</h3>
-              <p className="text-on-surface-variant font-medium text-lg max-w-md leading-relaxed">Master any meta with top 100 global elite mentors.</p>
+              <span className="text-xs font-black uppercase tracking-[0.3em] text-primary mb-3 drop-shadow-[0_0_8px_rgba(0,255,204,0.8)]">Тактикийн Сургалт</span>
+              <h3 className="text-4xl font-display font-black text-on-surface mb-3 group-hover:text-primary transition-colors drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Мэргэжлийн Дасгалжуулагч</h3>
+              <p className="text-on-surface-variant font-medium text-lg max-w-md leading-relaxed">Дэлхийн шилдэг 100-д багтсан дасгалжуулагчдаар хичээл заалгаарай.</p>
             </div>
             <div className="absolute inset-0 scanline opacity-30 group-hover:opacity-60 transition-opacity" />
           </Link>
@@ -136,8 +136,8 @@ export default function Home() {
             <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAA5quMhrHCiX_ektWAtkdB9KjvZ9s4h0MzPJAID07sZY9YhlYI8maN9WE3f2JC9LswBCyPGBOG1lSNKL1GrTQpO8W9Zf1yTJIYCsgoKP2Hv-JGSv3xa-YAUXHYpNStNSW-qtQBzB9kSNy5ewuUqYBSGb_ThFEpSQVEHupNCvPREHTodxve_HQi-cBtHmc11aEez4ixdXTpdF8MoOxBjdPpayXkBrSEmrzhRh5IBtVELIGEao6UxiJYumua78BhrHaKRqOPjF2IIgtp" 
               className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 mix-blend-luminosity group-hover:mix-blend-normal" alt="Gear" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent p-12 flex flex-col justify-end z-10">
-              <span className="text-xs font-black uppercase tracking-[0.3em] text-secondary mb-3 drop-shadow-[0_0_8px_rgba(191,127,255,0.8)]">Neural Hardware</span>
-              <h3 className="text-4xl font-display font-black text-on-surface mb-3 group-hover:text-secondary transition-colors drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Premium Gear</h3>
+              <span className="text-xs font-black uppercase tracking-[0.3em] text-secondary mb-3 drop-shadow-[0_0_8px_rgba(191,127,255,0.8)]">Мэдрэлийн Тоног Төхөөрөмж</span>
+              <h3 className="text-4xl font-display font-black text-on-surface mb-3 group-hover:text-secondary transition-colors drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Дээд Зэргийн Тоног Төхөөрөмж</h3>
               <p className="text-on-surface-variant font-medium text-lg max-w-md leading-relaxed">High-performance esports hardware and neural supplements.</p>
             </div>
             <div className="absolute inset-0 scanline opacity-30 group-hover:opacity-60 transition-opacity" />
