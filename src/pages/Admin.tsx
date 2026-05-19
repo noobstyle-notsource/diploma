@@ -194,7 +194,7 @@ export default function Admin() {
                         <td className="px-8 py-6">
                           <div className="flex flex-col">
                             <span className="text-sm font-bold text-on-surface">{order.buyer_name}</span>
-                            <span className="text-[10px] text-on-surface-variant font-medium">-> {order.seller_name}</span>
+                            <span className="text-[10px] text-on-surface-variant font-medium">➔ {order.seller_name}</span>
                           </div>
                         </td>
                         <td className="px-8 py-6 text-sm font-medium text-on-surface-variant">{order.product_title}</td>
@@ -267,7 +267,8 @@ export default function Admin() {
             </table>
           </div>
         </div>
-        {activeTab === 'escrow' && (
+      )}
+      {activeTab === 'escrow' && (
         <div className="space-y-8">
           <div className="glass-card rounded-[48px] border border-outline-variant/10 p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
@@ -352,7 +353,7 @@ export default function Admin() {
                       <XCircle className="w-5 h-5 flex-shrink-0" /> Гүйлгээг админ цуцалж, төлбөр худалдан авагчийн дансанд буцлаа.
                     </div>
                   )}
-                </div>    </div>
+                </div>
               ))
             )}
           </div>
