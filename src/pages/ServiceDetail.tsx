@@ -46,6 +46,11 @@ export default function ServiceDetail() {
     navigate(`/checkout?product=${id}&tier=${index}`);
   };
 
+  const handleEscrowOrder = (index: number) => {
+    if (!isLoggedIn()) { navigate('/login'); return; }
+    navigate(`/checkout?product=${id}&tier=${index}&escrow=true`);
+  };
+
   const handleContact = async () => {
     if (!isLoggedIn()) { navigate('/login'); return; }
     if (!product) return;
@@ -110,6 +115,11 @@ export default function ServiceDetail() {
             <span className="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-[0.2em] border border-primary/20">
               {product.category}
             </span>
+            {product.category === 'Gear' && (product.wearCondition || product.wear_condition) && (
+              <span className="bg-yellow-500/10 text-yellow-400 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-[0.2em] border border-yellow-500/20">
+                {product.wearCondition || product.wear_condition}
+              </span>
+            )}
             <div className="flex text-primary">
               {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary" />)}
             </div>
@@ -251,15 +261,23 @@ export default function ServiceDetail() {
                         </li>
                     </ul>
 
-                    <button
-                      onClick={() => handleOrder(tier.index)}
-                      className={cn(
-                        "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 cursor-pointer",
-                        buttonBg, shadowColor
-                      )}
-                    >
-                      {tier.buttonText}
-                    </button>
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => handleOrder(tier.index)}
+                        className={cn(
+                          "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 cursor-pointer",
+                          buttonBg, shadowColor
+                        )}
+                      >
+                        {tier.buttonText}
+                      </button>
+                      <button
+                        onClick={() => handleEscrowOrder(tier.index)}
+                        className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center gap-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500 hover:text-black hover:scale-105 active:scale-95 cursor-pointer"
+                      >
+                        <Shield className="w-4 h-4" /> Buy with Middleman Escrow
+                      </button>
+                    </div>
                   </div>
                 );
               })}

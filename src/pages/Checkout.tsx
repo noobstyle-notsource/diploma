@@ -3,7 +3,7 @@ import { ShieldCheck, CreditCard, ArrowRight, CheckCircle, Lock, Layers, Zap, Gl
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
-import { orders as ordersApi, auth as authApi, products as productsApi, isLoggedIn, type Product } from '../lib/api';
+import { orders as ordersApi, auth as authApi, products as productsApi, escrow, isLoggedIn, type Product } from '../lib/api';
 
 import gearPlaceholder from '../assets/placeholders/gear.png';
 import boostingPlaceholder from '../assets/placeholders/boosting.png';
@@ -30,6 +30,7 @@ export default function Checkout() {
   
   const productId = searchParams.get('product');
   const tierIndex = parseInt(searchParams.get('tier') ?? '1');
+  const isEscrow = searchParams.get('escrow') === 'true';
 
   useEffect(() => {
     if (!isLoggedIn()) { navigate('/login'); return; }
@@ -73,11 +74,14 @@ export default function Checkout() {
     if (e) e.preventDefault();
     setIsProcessing(true);
     try {
-      await ordersApi.create(product.id, selectedTier.name.toUpperCase());
-      // Show success animation/state
+      if (isEscrow) {
+        await escrow.create(product.id, selectedTier.name.toUpperCase());
+      } else {
+        await ordersApi.create(product.id, selectedTier.name.toUpperCase());
+      }
       setTimeout(() => navigate('/orders'), 1500);
-    } catch (err) {
-      console.error('Payment failed:', err);
+    } catch (err: any) {
+      alert(err.message || 'Payment failed');
       setIsProcessing(false);
     }
   };
@@ -91,11 +95,18 @@ export default function Checkout() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">
-      <div className="flex items-center gap-4 mb-12">
-        <Link to={`/services/${productId}`} className="p-3 rounded-full hover:bg-surface-container-high transition-colors">
-          <ArrowRight className="w-6 h-6 rotate-180" />
-        </Link>
-        <h1 className="text-headline-xl text-on-surface font-display">Secure Checkout</h1>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12">
+        <div className="flex items-center gap-4">
+          <Link to={`/services/${productId}`} className="p-3 rounded-full hover:bg-surface-container-high transition-colors">
+            <ArrowRight className="w-6 h-6 rotate-180" />
+          </Link>
+          <h1 className="text-headline-xl text-on-surface font-display">{isEscrow ? 'Middleman Escrow Checkout' : 'Secure Checkout'}</h1>
+        </div>
+        {isEscrow && (
+          <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-6 py-3 rounded-2xl text-yellow-400 text-xs font-black uppercase tracking-widest animate-pulse w-fit">
+            <ShieldCheck className="w-4 h-4" /> Middleman Escrow Protection Active
+          </div>
+        )}
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">

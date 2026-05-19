@@ -3,37 +3,68 @@ import {
   BarChart3, Users, Package, ShoppingCart, 
   ShieldAlert, Activity, ArrowUpRight, 
   Search, Filter, MoreVertical, CheckCircle, 
-  Clock, XCircle, Terminal, RefreshCcw
+  Clock, XCircle, Terminal, RefreshCcw, ShieldCheck, Key
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'motion/react';
-import { admin, type Order, type AuthUser } from '../lib/api';
+import { admin, auth, escrow, type Order, type AuthUser, type EscrowTrade } from '../lib/api';
 
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users' | 'escrow'>('overview');
   const [stats, setStats] = useState<any>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [userList, setUserList] = useState<AuthUser[]>([]);
+  const [escrowTrades, setEscrowTrades] = useState<EscrowTrade[]>([]);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [s, o, u] = await Promise.all([
+      const [s, o, u, me, esc] = await Promise.all([
         admin.stats(),
         admin.orders(),
-        admin.users()
+        admin.users(),
+        auth.me().catch(() => null),
+        escrow.list().catch(() => [])
       ]);
       setStats(s);
       setOrders(o);
       setUserList(u);
+      setCurrentUser(me);
+      setEscrowTrades(esc);
       setError(null);
     } catch (err: any) {
-      setError(err.message === 'Administrative clearance required' ? 'ACCESS_DENIED' : err.message);
+      setError(err.message === 'Administrative clearance required' || err.message === 'Admin access restricted' ? 'ACCESS_DENIED' : err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSetRank = async (userId: string, newRank: 'OPERATOR' | 'moderator' | 'admin' | 'BANNED') => {
+    try {
+      const res = await admin.setRank(userId, newRank);
+      setUserList(prev => prev.map(u => u.id === userId ? { ...u, rank: res.rank } : u));
+    } catch (err: any) {
+      alert(err.message || 'Failed to update rank');
+    }
+  };
+
+  const handleVerifyEscrow = async (id: string) => {
+    try {
+      await escrow.verify(id);
+      setEscrowTrades(prev => prev.map(t => t.id === id ? { ...t, status: 'COMPLETED' } : t));
+      alert('Escrow trade verified & funds released to seller!');
+    } catch (err: any) { alert(err.message || 'Failed to verify trade'); }
+  };
+
+  const handleCancelEscrow = async (id: string) => {
+    try {
+      await escrow.cancel(id);
+      setEscrowTrades(prev => prev.map(t => t.id === id ? { ...t, status: 'CANCELLED' } : t));
+      alert('Escrow trade cancelled & funds refunded to buyer!');
+    } catch (err: any) { alert(err.message || 'Failed to cancel trade'); }
   };
 
   useEffect(() => {
@@ -94,7 +125,7 @@ export default function Admin() {
 
       {/* Admin Nav */}
       <div className="flex items-center gap-2 p-1.5 bg-surface-container-low border border-outline-variant/10 rounded-3xl mb-12 w-fit">
-        {(['overview', 'orders', 'users'] as const).map((tab) => (
+        {(['overview', 'orders', 'users', 'escrow'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -105,7 +136,7 @@ export default function Admin() {
                 : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
             )}
           >
-            {tab}
+            {tab === 'escrow' ? 'Middleman Escrow' : tab}
           </button>
         ))}
       </div>
@@ -170,7 +201,7 @@ export default function Admin() {
                         <td className="px-8 py-6">
                           <span className={cn(
                             "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
-                            order.status === 'COMPLETED' ? "bg-green-500/10 text-green-400" : 
+                            order.status === 'COMPLETED' ? "bg-green-50-500/10 text-green-400" : 
                             order.status === 'PENDING' ? "bg-primary/10 text-primary" : "bg-yellow-500/10 text-yellow-400"
                           )}>
                             {order.status}
@@ -238,6 +269,98 @@ export default function Admin() {
         </div>
       )}
 
+      {activeTab === 'escrow' && (
+        <div className="space-y-8">
+          <div className="glass-card rounded-[48px] border border-outline-variant/10 p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h3 className="text-xl font-display font-bold text-on-surface mb-2">Middleman Escrow Hub</h3>
+              <p className="text-xs text-on-surface-variant max-w-xl leading-relaxed">
+                As a Moderator or Admin, you act as the trusted middleman. Inspect the seller's submitted credentials, verify account validity, and confirm the trade to release funds to the seller and deliver the account to the buyer.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-6 py-3 rounded-2xl text-primary text-xs font-black uppercase tracking-widest">
+              <ShieldCheck className="w-4 h-4" /> Escrow Active
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8">
+            {escrowTrades.length === 0 ? (
+              <div className="glass-surface rounded-[40px] p-16 text-center border border-outline-variant/10">
+                <Key className="w-12 h-12 text-outline mx-auto mb-4 opacity-40" />
+                <h4 className="text-lg font-bold text-on-surface mb-2">No Active Escrow Trades</h4>
+                <p className="text-xs text-on-surface-variant">All buyer-seller account exchanges have been fully verified and completed.</p>
+              </div>
+            ) : (
+              escrowTrades.map((trade) => (
+                <div key={trade.id} className="glass-card rounded-[40px] border border-outline-variant/10 p-8 shadow-2xl relative overflow-hidden group">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 pb-6 border-b border-outline-variant/5">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="font-mono text-xs text-primary font-bold">#{trade.id.slice(0, 8)}</span>
+                        <span className={cn(
+                          "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
+                          trade.status === 'COMPLETED' ? "bg-green-500/10 text-green-400 border border-green-500/20" :
+                          trade.status === 'CANCELLED' ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                          trade.status === 'PENDING_MIDDLEMAN_VERIFICATION' ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 animate-pulse" :
+                          "bg-primary/10 text-primary border border-primary/20"
+                        )}>
+                          {trade.status}
+                        </span>
+                      </div>
+                      <h4 className="text-lg font-display font-bold text-on-surface">{trade.product_title}</h4>
+                      <div className="text-xs text-on-surface-variant mt-1">
+                        Buyer: <span className="text-on-surface font-bold">{trade.buyer_name}</span> | Seller: <span className="text-on-surface font-bold">{trade.seller_name}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs text-on-surface-variant block mb-1">Escrow Hold</span>
+                      <span className="text-2xl font-display font-bold text-primary">₮{trade.amount.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {trade.status === 'PENDING_MIDDLEMAN_VERIFICATION' && (
+                    <div className="bg-surface-container-high/60 border border-outline-variant/10 rounded-3xl p-6 mb-6 space-y-4">
+                      <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-yellow-400">
+                        <Key className="w-4 h-4" /> Seller Submitted Account Credentials:
+                      </div>
+                      <div className="bg-black/50 p-4 rounded-2xl font-mono text-xs text-primary border border-primary/20 whitespace-pre-wrap select-all">
+                        {trade.account_credentials || 'No credentials text provided.'}
+                      </div>
+                      <div className="flex flex-wrap gap-4 justify-end pt-2">
+                        <button
+                          onClick={() => handleCancelEscrow(trade.id)}
+                          className="px-6 py-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                        >
+                          Cancel & Refund Buyer
+                        </button>
+                        <button
+                          onClick={() => handleVerifyEscrow(trade.id)}
+                          className="px-8 py-3 bg-green-500 text-black font-black rounded-2xl text-xs uppercase tracking-widest shadow-lg shadow-green-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                        >
+                          Confirm & Release Trade
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {trade.status === 'COMPLETED' && (
+                    <div className="bg-green-500/5 border border-green-500/10 rounded-3xl p-6 text-xs text-green-400 flex items-center gap-3 font-medium">
+                      <CheckCircle className="w-5 h-5 flex-shrink-0" /> Trade successfully verified by Middleman. Funds released to seller balance.
+                    </div>
+                  )}
+
+                  {trade.status === 'CANCELLED' && (
+                    <div className="bg-red-500/5 border border-red-500/10 rounded-3xl p-6 text-xs text-red-400 flex items-center gap-3 font-medium">
+                      <XCircle className="w-5 h-5 flex-shrink-0" /> Trade cancelled by Middleman. Escrow funds refunded to buyer balance.
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
       {activeTab === 'users' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {userList.map((user) => (
@@ -246,10 +369,22 @@ export default function Admin() {
                 <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-xl font-bold text-primary">
                   {user.username[0].toUpperCase()}
                 </div>
-                <div>
+                <div className="flex-grow">
                   <h4 className="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">{user.username}</h4>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">{user.rank}</span>
+                  <span className={cn(
+                    "text-[10px] font-black uppercase tracking-widest", 
+                    user.rank === 'BANNED' ? "text-red-500" : 
+                    user.rank === 'moderator' ? "text-yellow-400" :
+                    user.rank === 'admin' ? "text-primary" : "text-on-surface-variant"
+                  )}>{user.rank}</span>
                 </div>
+                <button 
+                  onClick={() => window.location.href = `/profile/${user.id}`}
+                  className="p-2.5 bg-surface-container-high rounded-xl text-on-surface hover:text-primary hover:bg-primary/10 transition-all cursor-pointer"
+                  title="View Profile"
+                >
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
               </div>
               <div className="space-y-3 pt-4 border-t border-outline-variant/5">
                 <div className="flex justify-between text-xs">
@@ -264,6 +399,62 @@ export default function Admin() {
                   <span className="text-on-surface-variant">Joined</span>
                   <span className="text-on-surface-variant">{new Date(user.created_at as any).toLocaleDateString()}</span>
                 </div>
+
+                {(currentUser?.rank === 'owner' || currentUser?.rank === 'admin') && user.rank !== 'owner' && (
+                  <div className="pt-4 border-t border-outline-variant/10 flex flex-wrap gap-2 mt-4 justify-end items-center">
+                    {user.rank === 'BANNED' ? (
+                      <button 
+                        onClick={() => handleSetRank(user.id, 'OPERATOR')}
+                        className="px-4 py-2 bg-green-500/10 text-green-400 border border-green-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all cursor-pointer"
+                      >
+                        Unban User
+                      </button>
+                    ) : (
+                      <>
+                        <button 
+                          onClick={() => handleSetRank(user.id, 'BANNED')}
+                          className="px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                        >
+                          Ban User
+                        </button>
+                        
+                        {user.rank === 'moderator' ? (
+                          <button 
+                            onClick={() => handleSetRank(user.id, 'OPERATOR')}
+                            className="px-4 py-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition-all cursor-pointer"
+                          >
+                            Demote Mod
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => handleSetRank(user.id, 'moderator')}
+                            className="px-4 py-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition-all cursor-pointer"
+                          >
+                            Promote Mod
+                          </button>
+                        )}
+
+                        {currentUser.rank === 'owner' && (
+                          user.rank === 'admin' ? (
+                            <button 
+                              onClick={() => handleSetRank(user.id, 'OPERATOR')}
+                              className="px-4 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-all cursor-pointer"
+                            >
+                              Demote Admin
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={() => handleSetRank(user.id, 'admin')}
+                              className="px-4 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-all cursor-pointer"
+                            >
+                              Promote Admin
+                            </button>
+                          )
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}

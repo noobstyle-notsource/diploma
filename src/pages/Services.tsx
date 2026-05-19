@@ -69,15 +69,15 @@ export default function Services() {
     { id: 'All', label: 'Total Nexus' },
     { id: 'Boosting', label: 'Rank Boosting' },
     { id: 'Coaching', label: 'Pro Coaching' },
-    { id: 'Gear', label: 'Elite Gear' },
     { id: 'Rentals', label: 'Account Rentals' },
-    { id: 'Supplements', label: 'Bio-Hacking' },
   ];
 
   useEffect(() => {
     setLoading(true);
     productsApi.list().then(data => {
-      const services = data.map(toService);
+      const services = data
+        .filter(p => !['Gear', 'Supplements'].includes(mapCategory(p.category)))
+        .map(toService);
       setAllServices(services);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
@@ -98,7 +98,7 @@ export default function Services() {
       <section className="mb-16">
         <h1 className="text-headline-xl text-on-surface mb-4 font-display">Zen Nexus</h1>
         <p className="text-on-surface-variant text-lg max-w-2xl leading-relaxed font-medium">
-          The ultimate clearing house for competitive advantages. From neural-linked gear to master-class coaching.
+          The ultimate clearing house for digital competitive advantages. Explore elite rank boosting, master-class coaching, and secure account rentals.
         </p>
       </section>
 

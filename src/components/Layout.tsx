@@ -3,6 +3,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import { useLocation } from 'react-router-dom';
 import { motion, useScroll, useSpring } from 'motion/react';
+import { AIChat } from './AIChat';
 
 export default function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
@@ -34,6 +35,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         {children}
       </main>
       {!hideFooter && <Footer />}
+      {!isAuthPage && <AIChat />}
     </div>
   );
 }

@@ -13,6 +13,7 @@ export default function AddProduct() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
+  const [wearCondition, setWearCondition] = useState('Brand New');
   const [tiers, setTiers] = useState<{ name: string; price: string }[]>([
     { name: 'BASIC', price: '' },
     { name: 'PRO', price: '' },
@@ -47,6 +48,7 @@ export default function AddProduct() {
         title,
         description,
         category,
+        wearCondition: category === 'Gear' ? wearCondition : 'Brand New',
         tiers: tiers.map(t => ({ name: t.name, price: parseFloat(t.price) || 0 })),
         per_unit: priceUnit || (['Gear', 'Supplements'].includes(category) ? 'Fixed Price' : '/session'),
       });
@@ -141,11 +143,38 @@ export default function AddProduct() {
                       </div>
                     </div>
                   </div>
+
+                  {category === 'Gear' && (
+                    <div className="space-y-4">
+                      <label className="text-label-md text-primary ml-1">Wear Condition</label>
+                      <div className="relative">
+                        <select value={wearCondition} onChange={e => setWearCondition(e.target.value)}
+                          className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 px-8 text-on-surface focus:border-primary outline-none appearance-none transition-all">
+                          <option>Brand New</option>
+                          <option>Like New / Opened</option>
+                          <option>Slightly Used</option>
+                          <option>Heavily Used</option>
+                        </select>
+                        <Layers className="absolute right-8 top-1/2 -translate-y-1/2 w-5 h-5 text-outline pointer-events-none" />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="space-y-4">
                     <label className="text-label-md text-primary ml-1">Brief Narrative</label>
                     <textarea rows={6} value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe the elite experience you provide..."
                       className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-[32px] py-6 px-8 text-on-surface focus:border-primary outline-none transition-all resize-none leading-relaxed" />
-                  </div>
+                    <button type="button" onClick={async () => {
+                      setLoading(true);
+                      try {
+                        const enhanced = await ai.chat(`Improve this service description. Title: ${title}. Current description: ${description}`);
+                        setDescription(enhanced);
+                      } catch (e) {
+                        console.error('AI Enhance error', e);
+                      } finally { setLoading(false); }
+                    }} disabled={loading} className="mt-2 px-4 py-2 bg-primary text-on-primary rounded-md hover:bg-primary/80 transition">
+                      {loading ? 'Enhancing...' : 'Enhance with AI'}
+                    </button>                  </div>
                   <div className="p-8 rounded-3xl bg-secondary/5 border border-secondary/20 flex gap-6 items-start">
                     <AlertCircle className="w-8 h-8 text-secondary flex-shrink-0 mt-1" />
                     <div>

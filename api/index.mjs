@@ -17,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'ZEN_GAMER_V0ID_S3CR3T_K3Y';
+const OWNER_EMAIL = 'misheelmother@gmail.com';
 const databaseUrl = process.env.DATABASE_URL || '';
 const geminiKey = process.env.VITE_GEMINI_KEY || '';
 
@@ -36,19 +37,24 @@ const upload = multer({ storage });
 // Database Initialization (Runs once per serverless instance cold start)
 async function initDb() {
   await sql`CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT UNIQUE NOT NULL, email TEXT UNIQUE NOT NULL, password TEXT NOT NULL, avatar TEXT DEFAULT '', rank TEXT DEFAULT 'OPERATOR', bio TEXT DEFAULT '', balance REAL DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW())`;
-  await sql`CREATE TABLE IF NOT EXISTS products (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), title TEXT NOT NULL, description TEXT DEFAULT '', category TEXT DEFAULT 'BOOSTING', region TEXT DEFAULT 'GLOBAL', tag TEXT DEFAULT '', basic_price REAL DEFAULT 0, pro_price REAL DEFAULT 0, elite_price REAL DEFAULT 0, basic_name TEXT DEFAULT 'BASIC', pro_name TEXT DEFAULT 'PRO', elite_name TEXT DEFAULT 'ELITE', per_unit TEXT DEFAULT '/session', features JSONB DEFAULT '[]', images JSONB DEFAULT '[]', icon TEXT DEFAULT '🎮', status TEXT DEFAULT 'ACTIVE', created_at TIMESTAMPTZ DEFAULT NOW())`;
+  await sql`CREATE TABLE IF NOT EXISTS products (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), title TEXT NOT NULL, description TEXT DEFAULT '', category TEXT DEFAULT 'BOOSTING', wear_condition TEXT DEFAULT 'Brand New', region TEXT DEFAULT 'GLOBAL', tag TEXT DEFAULT '', basic_price REAL DEFAULT 0, pro_price REAL DEFAULT 0, elite_price REAL DEFAULT 0, basic_name TEXT DEFAULT 'BASIC', pro_name TEXT DEFAULT 'PRO', elite_name TEXT DEFAULT 'ELITE', per_unit TEXT DEFAULT '/session', features JSONB DEFAULT '[]', images JSONB DEFAULT '[]', icon TEXT DEFAULT '🎮', status TEXT DEFAULT 'ACTIVE', created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS conversations (id TEXT PRIMARY KEY, buyer_id TEXT NOT NULL REFERENCES users(id), seller_id TEXT NOT NULL REFERENCES users(id), product_id TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS messages (id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL REFERENCES conversations(id), sender_id TEXT NOT NULL REFERENCES users(id), text TEXT NOT NULL, read BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS orders (id TEXT PRIMARY KEY, buyer_id TEXT NOT NULL REFERENCES users(id), product_id TEXT NOT NULL REFERENCES products(id), tier TEXT DEFAULT 'PRO', status TEXT DEFAULT 'PENDING', total REAL DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS notifications (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), type TEXT NOT NULL, content TEXT NOT NULL, read BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW())`;
+  await sql`CREATE TABLE IF NOT EXISTS escrow_trades (id TEXT PRIMARY KEY, buyer_id TEXT NOT NULL REFERENCES users(id), seller_id TEXT NOT NULL REFERENCES users(id), product_id TEXT NOT NULL REFERENCES products(id), amount REAL DEFAULT 0, account_credentials TEXT DEFAULT '', status TEXT DEFAULT 'PENDING_SELLER_CREDS', middleman_id TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`;
+  try { await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS wear_condition TEXT DEFAULT 'Brand New'`; } catch {}
 }
 
 // Middleware
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Auth required' });
   try {
-    req.user = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const rows = await sql`SELECT rank FROM users WHERE id = ${decoded.id}`;
+    if (rows[0]?.rank === 'BANNED') return res.status(403).json({ error: 'Your account has been permanently banned from Zen-Gamer.' });
+    req.user = decoded;
     next();
   } catch { res.status(401).json({ error: 'Invalid token' }); }
 };
@@ -58,7 +64,29 @@ const adminAuth = (req, res, next) => {
   if (!token) return res.status(401).json({ error: 'Auth required' });
   try {
     const user = jwt.verify(token, JWT_SECRET);
-    if (user.role !== 'admin') return res.status(403).json({ error: 'Admin access restricted' });
+    if (user.role !== 'admin' && user.role !== 'owner' && user.role !== 'moderator') return res.status(403).json({ error: 'Admin access restricted' });
+    req.user = user;
+    next();
+  } catch { res.status(401).json({ error: 'Invalid token' }); }
+};
+
+const adminOrOwnerAuth = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Auth required' });
+  try {
+    const user = jwt.verify(token, JWT_SECRET);
+    if (user.role !== 'admin' && user.role !== 'owner') return res.status(403).json({ error: 'Administrative clearance required' });
+    req.user = user;
+    next();
+  } catch { res.status(401).json({ error: 'Invalid token' }); }
+};
+
+const ownerAuth = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Auth required' });
+  try {
+    const user = jwt.verify(token, JWT_SECRET);
+    if (user.role !== 'owner') return res.status(403).json({ error: 'Owner clearance required' });
     req.user = user;
     next();
   } catch { res.status(401).json({ error: 'Invalid token' }); }
@@ -80,6 +108,31 @@ app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   const rows = await sql`SELECT * FROM users WHERE email = ${email}`;
   if (!rows[0] || !await bcrypt.compare(password, rows[0].password)) return res.status(401).json({ error: 'Invalid credentials' });
+  if (rows[0].rank === 'BANNED') return res.status(403).json({ error: 'Your account has been permanently banned from Zen-Gamer.' });
+  // Auto-promote owner account
+  if (email === OWNER_EMAIL && rows[0].rank !== 'owner') {
+    await sql`UPDATE users SET rank = 'owner' WHERE email = ${OWNER_EMAIL}`;
+    rows[0].rank = 'owner';
+  }
+  const token = jwt.sign({ id: rows[0].id, username: rows[0].username, role: rows[0].rank }, JWT_SECRET);
+  res.json({ token, user: rows[0] });
+});
+
+app.post('/api/google', async (req, res) => {
+  const { email, username } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  let rows = await sql`SELECT * FROM users WHERE email = ${email}`;
+  if (rows[0] && rows[0].rank === 'BANNED') return res.status(403).json({ error: 'Your account has been permanently banned from Zen-Gamer.' });
+  if (!rows[0]) {
+    const rank = email === OWNER_EMAIL ? 'owner' : 'OPERATOR';
+    const id = randomUUID();
+    const hash = await bcrypt.hash(randomUUID(), 10);
+    await sql`INSERT INTO users (id, username, email, password, rank, balance) VALUES (${id}, ${username || email.split('@')[0]}, ${email}, ${hash}, ${rank}, 0)`;
+    rows = await sql`SELECT * FROM users WHERE id = ${id}`;
+  } else if (email === OWNER_EMAIL && rows[0].rank !== 'owner') {
+    await sql`UPDATE users SET rank = 'owner' WHERE email = ${OWNER_EMAIL}`;
+    rows[0].rank = 'owner';
+  }
   const token = jwt.sign({ id: rows[0].id, username: rows[0].username, role: rows[0].rank }, JWT_SECRET);
   res.json({ token, user: rows[0] });
 });
@@ -110,8 +163,8 @@ app.get('/api/products/:id', async (req, res) => {
 
 app.post('/api/products', auth, async (req, res) => {
   const id = randomUUID();
-  const { title, description, category, basicPrice, proPrice, elitePrice, basicName, proName, eliteName, perUnit, images } = req.body;
-  await sql`INSERT INTO products (id, user_id, title, description, category, basic_price, pro_price, elite_price, basic_name, pro_name, elite_name, per_unit, images) VALUES (${id}, ${req.user.id}, ${title}, ${description}, ${category}, ${basicPrice}, ${proPrice}, ${elitePrice}, ${basicName}, ${proName}, ${eliteName}, ${perUnit}, ${JSON.stringify(images)})`;
+  const { title, description, category, wearCondition, basicPrice, proPrice, elitePrice, basicName, proName, eliteName, perUnit, images } = req.body;
+  await sql`INSERT INTO products (id, user_id, title, description, category, wear_condition, basic_price, pro_price, elite_price, basic_name, pro_name, elite_name, per_unit, images) VALUES (${id}, ${req.user.id}, ${title}, ${description}, ${category}, ${wearCondition || 'Brand New'}, ${basicPrice}, ${proPrice}, ${elitePrice}, ${basicName}, ${proName}, ${eliteName}, ${perUnit}, ${JSON.stringify(images)})`;
   res.json({ id });
 });
 
@@ -196,15 +249,156 @@ app.get('/api/admin/users', adminAuth, async (req, res) => {
   res.json(rows);
 });
 
+// Admin/Owner: set rank of any user (promote/demote moderator/admin or ban)
+app.post('/api/admin/users/:id/set-rank', adminOrOwnerAuth, async (req, res) => {
+  const { rank } = req.body;
+  const { id } = req.params;
+  const allowed = ['OPERATOR', 'moderator', 'admin', 'BANNED'];
+  if (!allowed.includes(rank)) return res.status(400).json({ error: 'Invalid rank. Allowed: OPERATOR, moderator, admin, BANNED' });
+  // Prevent demoting owner
+  const target = await sql`SELECT email, rank FROM users WHERE id = ${id}`;
+  if (!target[0]) return res.status(404).json({ error: 'User not found' });
+  if (target[0].email === OWNER_EMAIL) return res.status(403).json({ error: 'Cannot modify owner account' });
+  
+  // Admins cannot promote/demote other admins or owners
+  if (req.user.role === 'admin' && (target[0].rank === 'admin' || target[0].rank === 'owner' || rank === 'admin')) {
+    return res.status(403).json({ error: 'Only the Owner can promote or demote Admin accounts.' });
+  }
+  
+  await sql`UPDATE users SET rank = ${rank} WHERE id = ${id}`;
+  res.json({ success: true, rank });
+});
+
+// --- ESCROW MIDDLEMAN TRADE ROUTES ---
+app.post('/api/escrow/create', auth, async (req, res) => {
+  const { productId, tier } = req.body;
+  const product = await sql`SELECT * FROM products WHERE id = ${productId}`;
+  if (!product[0]) return res.status(404).json({ error: 'Product not found' });
+  
+  const amount = Number(tier === 'BASIC' ? product[0].basic_price : tier === 'ELITE' ? product[0].elite_price : product[0].pro_price || 0);
+  
+  const tradeId = randomUUID();
+  await sql`UPDATE users SET balance = balance - ${amount} WHERE id = ${req.user.id}`;
+  await sql`INSERT INTO escrow_trades (id, buyer_id, seller_id, product_id, amount, status) VALUES (${tradeId}, ${req.user.id}, ${product[0].user_id}, ${productId}, ${amount}, 'PENDING_SELLER_CREDS')`;
+  
+  const notifId = randomUUID();
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${notifId}, ${product[0].user_id}, 'ESCROW', ${'A buyer has deposited ₮' + amount.toLocaleString() + ' in Middleman Escrow for ' + product[0].title + '. Please provide account credentials to the Middleman to proceed.'})`;
+  
+  res.json({ success: true, tradeId });
+});
+
+app.post('/api/escrow/:id/submit-creds', auth, async (req, res) => {
+  const { credentials } = req.body;
+  const { id } = req.params;
+  const trade = await sql`SELECT * FROM escrow_trades WHERE id = ${id} AND seller_id = ${req.user.id}`;
+  if (!trade[0]) return res.status(404).json({ error: 'Escrow trade not found or unauthorized' });
+  
+  await sql`UPDATE escrow_trades SET account_credentials = ${credentials}, status = 'PENDING_MIDDLEMAN_VERIFICATION' WHERE id = ${id}`;
+  
+  const mods = await sql`SELECT id FROM users WHERE rank IN ('moderator', 'admin', 'owner')`;
+  for (const mod of mods) {
+    const notifId = randomUUID();
+    await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${notifId}, ${mod.id}, 'ESCROW', ${'Escrow Trade #' + id.slice(0,8) + ' requires Middleman Verification!'})`;
+  }
+  res.json({ success: true });
+});
+
+app.get('/api/escrow/list', auth, async (req, res) => {
+  try {
+    if (['moderator', 'admin', 'owner'].includes(req.user.role)) {
+      const rows = await sql`SELECT e.*, p.title as product_title, u1.username as buyer_name, u2.username as seller_name FROM escrow_trades e JOIN products p ON e.product_id = p.id JOIN users u1 ON e.buyer_id = u1.id JOIN users u2 ON e.seller_id = u2.id ORDER BY e.created_at DESC`;
+      return res.json(rows);
+    } else {
+      const rows = await sql`SELECT e.*, p.title as product_title, u1.username as buyer_name, u2.username as seller_name FROM escrow_trades e JOIN products p ON e.product_id = p.id JOIN users u1 ON e.buyer_id = u1.id JOIN users u2 ON e.seller_id = u2.id WHERE e.buyer_id = ${req.user.id} OR e.seller_id = ${req.user.id} ORDER BY e.created_at DESC`;
+      return res.json(rows);
+    }
+  } catch (e) {
+    console.error('Escrow List Error:', e);
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/escrow/:id/verify', adminAuth, async (req, res) => {
+  const { id } = req.params;
+  const trade = await sql`SELECT * FROM escrow_trades WHERE id = ${id}`;
+  if (!trade[0] || trade[0].status !== 'PENDING_MIDDLEMAN_VERIFICATION') return res.status(400).json({ error: 'Trade not pending verification' });
+  
+  await sql`UPDATE escrow_trades SET status = 'COMPLETED', middleman_id = ${req.user.id} WHERE id = ${id}`;
+  await sql`UPDATE users SET balance = balance + ${trade[0].amount} WHERE id = ${trade[0].seller_id}`;
+  
+  const n1 = randomUUID(), n2 = randomUUID();
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n1}, ${trade[0].buyer_id}, 'ESCROW', ${'Middleman verified Trade #' + id.slice(0,8) + '! Account Credentials: ' + trade[0].account_credentials})`;
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n2}, ${trade[0].seller_id}, 'ESCROW', ${'Middleman verified Trade #' + id.slice(0,8) + '! ₮' + Number(trade[0].amount).toLocaleString() + ' has been released to your balance.'})`;
+  
+  res.json({ success: true });
+});
+
+app.post('/api/escrow/:id/cancel', adminAuth, async (req, res) => {
+  const { id } = req.params;
+  const trade = await sql`SELECT * FROM escrow_trades WHERE id = ${id}`;
+  if (!trade[0] || trade[0].status === 'COMPLETED' || trade[0].status === 'CANCELLED') return res.status(400).json({ error: 'Trade cannot be cancelled' });
+  
+  await sql`UPDATE escrow_trades SET status = 'CANCELLED', middleman_id = ${req.user.id} WHERE id = ${id}`;
+  await sql`UPDATE users SET balance = balance + ${trade[0].amount} WHERE id = ${trade[0].buyer_id}`;
+  
+  const n1 = randomUUID(), n2 = randomUUID();
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n1}, ${trade[0].buyer_id}, 'ESCROW', ${'Middleman cancelled Trade #' + id.slice(0,8) + '. ₮' + Number(trade[0].amount).toLocaleString() + ' has been refunded to your balance.'})`;
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n2}, ${trade[0].seller_id}, 'ESCROW', ${'Middleman cancelled Trade #' + id.slice(0,8) + ' due to invalid credentials.'})`;
+  
+  res.json({ success: true });
+});
+
+app.get('/api/notifications', auth, async (req, res) => {
+  try {
+    const list = await sql`SELECT * FROM notifications WHERE user_id = ${req.user.id} ORDER BY created_at DESC LIMIT 20`;
+    const formatted = list.map(n => ({
+      id: n.id,
+      type: n.type,
+      title: n.type === 'ORDER' ? 'Deployment Ordered' : n.type === 'MESSAGE' ? 'Incoming Transmission' : 'System Alert',
+      message: n.content,
+      read: n.read,
+      created_at: n.created_at,
+      link: n.type === 'ORDER' ? '/orders' : n.type === 'MESSAGE' ? '/messages' : '#',
+    }));
+    res.json(formatted);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/notifications/read-all', auth, async (req, res) => {
+  try {
+    await sql`UPDATE notifications SET read = TRUE WHERE user_id = ${req.user.id}`;
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/api/health', async (req, res) => {
   await initDb();
   res.json({ status: 'OK', db: 'NEON_POSTGRES' });
 });
 
-app.post('/api/gemini', (req, res) => {
-  if (!geminiKey) return res.status(500).json({ error: 'Gemini key not configured' });
+app.post('/api/gemini-nano', (req, res) => {
+  const key = process.env.VITE_GEMINI_KEY || geminiKey;
+  if (!key) return res.status(500).json({ error: 'Gemini key not configured' });
   const body = JSON.stringify(req.body);
-  const path = `/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${geminiKey}`;
+  const path = `/v1beta/models/gemini-flash-lite-latest:streamGenerateContent?alt=sse&key=${key}`;
+  const upstream = https.request({ hostname: 'generativelanguage.googleapis.com', path, method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) } }, (uRes) => {
+    res.writeHead(uRes.statusCode, { 'Content-Type': uRes.headers['content-type'] ?? 'text/event-stream', 'Cache-Control': 'no-cache' });
+    uRes.pipe(res);
+  });
+  upstream.on('error', (e) => { res.writeHead(502); res.end(`Proxy error: ${e.message}`); });
+  upstream.write(body);
+  upstream.end();
+});
+
+app.post('/api/gemini', (req, res) => {
+  const key = process.env.VITE_GEMINI_KEY || geminiKey;
+  if (!key) return res.status(500).json({ error: 'Gemini key not configured' });
+  const body = JSON.stringify(req.body);
+  const path = `/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${key}`;
   const upstream = https.request({ hostname: 'generativelanguage.googleapis.com', path, method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) } }, (uRes) => {
     res.writeHead(uRes.statusCode, { 'Content-Type': uRes.headers['content-type'] ?? 'text/event-stream', 'Cache-Control': 'no-cache' });
     uRes.pipe(res);

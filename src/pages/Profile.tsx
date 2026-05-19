@@ -192,11 +192,14 @@ export default function Profile() {
           <div className="glass-card rounded-3xl p-8 border-outline-variant/10">
             <h3 className="text-label-md text-primary mb-6">Security Check</h3>
             <div className="space-y-4">
-              <div className="flex items-center gap-3 text-sm font-medium text-on-surface">
-                <ShieldCheck className="w-5 h-5 text-green-400" /> Two-Factor Enabled
+              <div className="flex items-center gap-3 text-sm font-medium text-outline-variant">
+                <AlertCircle className="w-5 h-5 text-yellow-500/50" /> Two-Factor (WIP)
               </div>
-              <div className="flex items-center gap-3 text-sm font-medium text-on-surface">
-                <Mail className="w-5 h-5 text-green-400" /> Email Verified
+              <div className="flex items-center gap-3 text-sm font-medium text-outline-variant">
+                <AlertCircle className="w-5 h-5 text-yellow-500/50" /> Email Verification (WIP)
+              </div>
+              <div className="text-[10px] text-yellow-500/70 uppercase tracking-widest mt-4">
+                * Pending Next Milestone
               </div>
             </div>
           </div>

@@ -30,7 +30,7 @@ function toService(p: Product): Service {
 
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [priceRange, setPriceRange] = useState(1000);
+  const [priceRange, setPriceRange] = useState(5000000);
   const [searchQuery, setSearchQuery] = useState('');
   const [dbProducts, setDbProducts] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +49,7 @@ export default function Products() {
 
   const categories = [
     { id: 'All', label: 'All Products' },
-    { id: 'Gear', label: 'Gaming Gear' },
+    { id: 'Gear', label: 'Elite Gear' },
     { id: 'Supplements', label: 'Supplements' },
   ];
 
@@ -93,17 +93,17 @@ export default function Products() {
               <div>
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-8 ml-1">Price Range</h3>
                 <div className="px-1">
-                  <input type="range" min="0" max="1000" value={priceRange}
+                  <input type="range" min="0" max="5000000" step="50000" value={priceRange}
                     onChange={e => setPriceRange(Number(e.target.value))}
                     className="w-full h-1.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-primary" />
                   <div className="flex justify-between mt-6 text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
-                    <span>Min $0</span>
-                    <span className="text-primary">${priceRange} Max</span>
+                    <span>Min ₮0</span>
+                    <span className="text-primary">₮{priceRange.toLocaleString()} Max</span>
                   </div>
                 </div>
               </div>
 
-              <button onClick={() => { setSelectedCategory('All'); setPriceRange(1000); setSearchQuery(''); }}
+              <button onClick={() => { setSelectedCategory('All'); setPriceRange(5000000); setSearchQuery(''); }}
                 className="w-full flex items-center justify-center gap-3 py-5 bg-surface-container-high/50 border border-outline-variant/10 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface rounded-2xl hover:bg-surface-variant transition-all hover:scale-[1.02] active:scale-[0.98]">
                 <Filter className="w-3.5 h-3.5" /> Reset Filters
               </button>
