@@ -354,7 +354,7 @@ app.get('/api/notifications', auth, async (req, res) => {
     const formatted = list.map(n => ({
       id: n.id,
       type: n.type,
-      title: n.type === 'ORDER' ? 'Deployment Ordered' : n.type === 'MESSAGE' ? 'Incoming Transmission' : 'System Alert',
+      title: n.type === 'ORDER' ? 'Шинэ захиалга' : n.type === 'MESSAGE' ? 'Шинэ зурвас' : 'Системийн мэдэгдэл',
       message: n.content,
       read: n.read,
       created_at: n.created_at,

@@ -78,7 +78,7 @@ export default function Login() {
               transition={{ delay: 0.2 }}
               className="text-on-surface-variant max-w-[320px] mx-auto font-medium"
             >
-              Enter your sanctuary. Curated focus for the discerning player.
+              Тавтай морил. Жинхэнэ тоглогчдод зориулсан орчин.
             </motion.p>
           </div>
 
@@ -92,7 +92,7 @@ export default function Login() {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary opacity-40" />
           
           <div className="flex flex-col gap-8">
-            <h2 className="text-headline-md text-on-surface text-center">Welcome Back</h2>
+            <h2 className="text-headline-md text-on-surface text-center">Тавтай морил</h2>
 
             {error && (
               <div className="flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm font-medium">
@@ -104,7 +104,7 @@ export default function Login() {
             <form className="flex flex-col gap-6" onSubmit={handleLogin}>
               {/* Account ID */}
               <div className="flex flex-col gap-2">
-                <label className="text-label-md text-on-surface-variant ml-1" htmlFor="email">Account ID</label>
+                <label className="text-label-md text-on-surface-variant ml-1" htmlFor="email">Бүртгэлтэй И-мэйл</label>
                 <div className="relative group">
                   <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 text-outline w-5 h-5 group-focus-within:text-primary transition-colors" />
                   <input 
@@ -122,8 +122,8 @@ export default function Login() {
               {/* Password */}
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center ml-1">
-                  <label className="text-label-md text-on-surface-variant" htmlFor="password">Access Key</label>
-                  <Link to="/forgot-password" className="text-label-md text-secondary hover:text-secondary-fixed-dim transition-colors lowercase tracking-normal">Forgot Password?</Link>
+                  <label className="text-label-md text-on-surface-variant" htmlFor="password">Нууц үг</label>
+                  <Link to="/forgot-password" className="text-label-md text-secondary hover:text-secondary-fixed-dim transition-colors lowercase tracking-normal">Нууц үгээ мартсан уу?</Link>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-outline w-5 h-5 group-focus-within:text-primary transition-colors" />
@@ -153,7 +153,7 @@ export default function Login() {
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-on-secondary/20 border-t-on-secondary rounded-full animate-spin" />
-                ) : 'Enter Sanctuary'}
+                ) : 'Нэвтрэх'}
               </button>
             </form>
 
@@ -169,14 +169,14 @@ export default function Login() {
                   <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
                   <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
-                Continue with Google
+                Google-ээр нэвтрэх
               </button>
             </div>
 
 
               <div className="flex items-center gap-4 my-2">
                 <div className="flex-grow h-[1px] bg-outline-variant/20" />
-                <span className="text-[10px] font-black text-outline-variant uppercase tracking-[0.2em]">New Initiate?</span>
+                <span className="text-[10px] font-black text-outline-variant uppercase tracking-[0.2em]">Шинэ хэрэглэгч үү?</span>
                 <div className="flex-grow h-[1px] bg-outline-variant/20" />
               </div>
 
@@ -186,7 +186,7 @@ export default function Login() {
                 to="/register"
                 className="w-full text-center border border-outline-variant/40 text-on-surface font-bold text-sm uppercase tracking-widest py-5 rounded-xl hover:bg-surface-variant/20 transition-all active:scale-[0.98]"
               >
-                Register Now
+                Бүртгүүлэх
               </Link>
             </div>
           </motion.div>
@@ -195,11 +195,11 @@ export default function Login() {
           <div className="mt-12 flex justify-center gap-12">
             <button className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group">
               <Headset className="w-5 h-5 group-hover:animate-bounce" />
-              <span className="text-xs font-bold uppercase tracking-widest">Support</span>
+              <span className="text-xs font-bold uppercase tracking-widest">Тусламж</span>
             </button>
             <button className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group">
               <ShieldCheck className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-bold uppercase tracking-widest">Trust</span>
+              <span className="text-xs font-bold uppercase tracking-widest">Баталгаа</span>
             </button>
           </div>
         </div>

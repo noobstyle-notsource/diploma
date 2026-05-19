@@ -13,11 +13,11 @@ export default function AddProduct() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
-  const [wearCondition, setWearCondition] = useState('Brand New');
+  const [wearCondition, setWearCondition] = useState('Шинэ');
   const [tiers, setTiers] = useState<{ name: string; price: string }[]>([
-    { name: 'BASIC', price: '' },
-    { name: 'PRO', price: '' },
-    { name: 'ELITE', price: '' }
+    { name: 'ҮНДСЭН', price: '' },
+    { name: 'ПРО', price: '' },
+    { name: 'ЭЛИТ', price: '' }
   ]);
   const [priceUnit, setPriceUnit] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,12 +28,12 @@ export default function AddProduct() {
   React.useEffect(() => {
     const isSinglePrice = ['Gear', 'Supplements'].includes(category);
     if (isSinglePrice) {
-      setTiers([{ name: 'Price', price: tiers[0]?.price || '' }]);
-    } else if (tiers.length === 1 && tiers[0].name === 'Price') {
+      setTiers([{ name: 'Үнэ', price: tiers[0]?.price || '' }]);
+    } else if (tiers.length === 1 && (tiers[0].name === 'Price' || tiers[0].name === 'Үнэ')) {
       setTiers([
-        { name: 'BASIC', price: tiers[0].price },
-        { name: 'PRO', price: '' },
-        { name: 'ELITE', price: '' }
+        { name: 'ҮНДСЭН', price: tiers[0].price },
+        { name: 'ПРО', price: '' },
+        { name: 'ЭЛИТ', price: '' }
       ]);
     }
   }, [category]);
@@ -48,7 +48,7 @@ export default function AddProduct() {
         title,
         description,
         category,
-        wearCondition: category === 'Gear' ? wearCondition : 'Brand New',
+        wearCondition: category === 'Gear' ? wearCondition : 'Шинэ',
         tiers: tiers.map(t => ({ name: t.name, price: parseFloat(t.price) || 0 })),
         per_unit: priceUnit || (['Gear', 'Supplements'].includes(category) ? 'Fixed Price' : '/session'),
       });
@@ -60,11 +60,11 @@ export default function AddProduct() {
   };
 
   const isProductCategory = ['Gear', 'Supplements'].includes(category);
-  const priceLabel = isProductCategory ? 'Price' : 'Base Valuation';
+  const priceLabel = isProductCategory ? 'Үнэ' : 'Үнэлгээ';
 
   const addTier = () => {
     if (tiers.length < 5) {
-      setTiers([...tiers, { name: `Tier ${tiers.length + 1}`, price: '' }]);
+      setTiers([...tiers, { name: `Багц ${tiers.length + 1}`, price: '' }]);
     }
   };
 
@@ -85,16 +85,16 @@ export default function AddProduct() {
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
         <div>
-          <h1 className="text-headline-xl text-on-surface mb-2">List New Service</h1>
-          <p className="text-on-surface-variant font-medium">Create a premium listing for the elite Zen-Gamer marketplace.</p>
+          <h1 className="text-headline-xl text-on-surface mb-2">Шинэ үйлчилгээ/бүтээгдэхүүн нэмэх</h1>
+          <p className="text-on-surface-variant font-medium">Zen-Gamer платформд шинээр үйлчилгээ болон бүтээгдэхүүн байршуулах.</p>
         </div>
         <div className="flex gap-4">
           <button onClick={() => navigate('/services')} className="px-8 py-3 rounded-xl border border-outline-variant text-on-surface font-bold text-sm hover:bg-surface-variant/20 transition-all">
-            Cancel Draft
+            Цуцлах
           </button>
           <button type="submit" form="add-product-form" disabled={loading || success}
             className="px-10 py-3 bg-primary text-on-primary font-bold text-sm rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all disabled:opacity-60 flex items-center gap-2">
-            {loading ? <div className="w-4 h-4 border-2 border-on-primary/20 border-t-on-primary rounded-full animate-spin" /> : success ? <><CheckCircle className="w-4 h-4" /> Listed!</> : 'Deploy Service'}
+            {loading ? <div className="w-4 h-4 border-2 border-on-primary/20 border-t-on-primary rounded-full animate-spin" /> : success ? <><CheckCircle className="w-4 h-4" /> Нийтлэгдлээ!</> : 'Нийтлэх'}
           </button>
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function AddProduct() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <nav className="lg:col-span-3">
           <div className="glass-card rounded-3xl p-4 sticky top-28 space-y-2 border-outline-variant/10">
-            {[{ id: 'info', label: 'Service Info', icon: Package }, { id: 'pricing', label: 'Pricing Model', icon: DollarSign }, { id: 'media', label: 'Visual Media', icon: Upload }].map(tab => (
+            {[{ id: 'info', label: 'Ерөнхий мэдээлэл', icon: Package }, { id: 'pricing', label: 'Үнийн санал', icon: DollarSign }, { id: 'media', label: 'Зураг болон медиа', icon: Upload }].map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
                 className={cn("w-full flex items-center gap-4 p-5 rounded-2xl transition-all group text-left",
                   activeTab === tab.id ? "bg-primary/10 text-primary" : "text-on-surface-variant hover:bg-surface-container-high/50 hover:text-on-surface")}>
@@ -128,12 +128,12 @@ export default function AddProduct() {
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div className="space-y-4">
-                      <label className="text-label-md text-primary ml-1">Listing Identifier</label>
-                      <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Masterwork VOD Review" required
+                      <label className="text-label-md text-primary ml-1">Гарчиг</label>
+                      <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Жнь: CS2 ганцаарчилсан сургалт" required
                         className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 px-8 text-lg font-display font-medium text-on-surface focus:border-primary outline-none transition-all" />
                     </div>
                     <div className="space-y-4">
-                      <label className="text-label-md text-primary ml-1">Market Category</label>
+                      <label className="text-label-md text-primary ml-1">Ангилал</label>
                       <div className="relative">
                         <select value={category} onChange={e => setCategory(e.target.value)}
                           className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 px-8 text-on-surface focus:border-primary outline-none appearance-none transition-all">
@@ -146,14 +146,14 @@ export default function AddProduct() {
 
                   {category === 'Gear' && (
                     <div className="space-y-4">
-                      <label className="text-label-md text-primary ml-1">Wear Condition</label>
+                      <label className="text-label-md text-primary ml-1">Бүтээгдэхүүний төлөв</label>
                       <div className="relative">
                         <select value={wearCondition} onChange={e => setWearCondition(e.target.value)}
                           className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 px-8 text-on-surface focus:border-primary outline-none appearance-none transition-all">
-                          <option>Brand New</option>
-                          <option>Like New / Opened</option>
-                          <option>Slightly Used</option>
-                          <option>Heavily Used</option>
+                          <option>Шинэ</option>
+                          <option>Шинэвтэр / Задласан</option>
+                          <option>Бага зэрэг ашигласан</option>
+                          <option>Хуучин</option>
                         </select>
                         <Layers className="absolute right-8 top-1/2 -translate-y-1/2 w-5 h-5 text-outline pointer-events-none" />
                       </div>
@@ -161,8 +161,8 @@ export default function AddProduct() {
                   )}
 
                   <div className="space-y-4">
-                    <label className="text-label-md text-primary ml-1">Brief Narrative</label>
-                    <textarea rows={6} value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe the elite experience you provide..."
+                    <label className="text-label-md text-primary ml-1">Дэлгэрэнгүй тайлбар</label>
+                    <textarea rows={6} value={description} onChange={e => setDescription(e.target.value)} placeholder="Үйлчилгээ болон бүтээгдэхүүнийхээ талаар дэлгэрэнгүй бичнэ үү..."
                       className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-[32px] py-6 px-8 text-on-surface focus:border-primary outline-none transition-all resize-none leading-relaxed" />
                     <button type="button" onClick={async () => {
                       setLoading(true);
@@ -173,13 +173,13 @@ export default function AddProduct() {
                         console.error('AI Enhance error', e);
                       } finally { setLoading(false); }
                     }} disabled={loading} className="mt-2 px-4 py-2 bg-primary text-on-primary rounded-md hover:bg-primary/80 transition">
-                      {loading ? 'Enhancing...' : 'Enhance with AI'}
+                      {loading ? 'Сайжруулж байна...' : 'AI-аар сайжруулах'}
                     </button>                  </div>
                   <div className="p-8 rounded-3xl bg-secondary/5 border border-secondary/20 flex gap-6 items-start">
                     <AlertCircle className="w-8 h-8 text-secondary flex-shrink-0 mt-1" />
                     <div>
-                      <h4 className="text-sm font-black uppercase tracking-widest text-secondary mb-2">Curator Warning</h4>
-                      <p className="text-sm text-on-surface-variant font-medium leading-relaxed">All descriptions are parsed by our AI curator for quality. Misleading titles or low-effort descriptions will be rejected from the focus lounge.</p>
+                      <h4 className="text-sm font-black uppercase tracking-widest text-secondary mb-2">Анхааруулга</h4>
+                      <p className="text-sm text-on-surface-variant font-medium leading-relaxed">Бүх тайлбарыг AI систем шалгах болно. Буруу ташаа эсвэл хэт богино мэдээллийг нийтлэх боломжгүй.</p>
                     </div>
                   </div>
                 </motion.div>
@@ -189,14 +189,14 @@ export default function AddProduct() {
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-12">
                   <div className="flex justify-between items-end gap-4">
                     <div className="space-y-4 flex-grow">
-                      <label className="text-label-md text-primary ml-1">Unit Type (e.g. Per Hour, Fixed Price)</label>
-                      <input type="text" value={priceUnit} onChange={e => setPriceUnit(e.target.value)} placeholder={isProductCategory ? "Fixed Price" : "e.g. Per Session"}
+                      <label className="text-label-md text-primary ml-1">Нэгж (Жнь: Цагийн, Ширхэгийн)</label>
+                      <input type="text" value={priceUnit} onChange={e => setPriceUnit(e.target.value)} placeholder={isProductCategory ? "Тогтмол үнэ" : "Жнь: Цагийн"}
                         className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 px-8 text-on-surface focus:border-primary outline-none transition-all" />
                     </div>
                     {category !== 'Gear' && tiers.length < 5 && (
                       <button type="button" onClick={addTier} className="mb-1 p-5 rounded-2xl bg-primary/10 text-primary hover:bg-primary/20 transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-widest">
 
-                        <Plus className="w-5 h-5" /> Add Tier
+                        <Plus className="w-5 h-5" /> Багц нэмэх
                       </button>
                     )}
                   </div>
@@ -214,7 +214,7 @@ export default function AddProduct() {
 
                           <input 
                             type="text" value={tier.name} onChange={e => updateTier(idx, 'name', e.target.value)}
-                            placeholder={`Tier ${idx + 1} Name`}
+                            placeholder={`Багц ${idx + 1} нэр`}
                             className="bg-transparent border-b border-outline-variant/20 py-1 px-2 text-sm font-black uppercase tracking-[0.2em] text-primary focus:border-primary outline-none transition-all w-48"
                           />
                         </div>
@@ -240,8 +240,8 @@ export default function AddProduct() {
                     <div className="w-24 h-24 bg-surface-container-high rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
                       <Upload className="w-10 h-10 text-primary" />
                     </div>
-                    <h3 className="text-headline-md text-on-surface mb-2">Upload Visual Identity</h3>
-                    <p className="text-on-surface-variant font-medium max-w-xs">Drag and drop your hero image (16:9, min 1920x1080).</p>
+                    <h3 className="text-headline-md text-on-surface mb-2">Зураг оруулах</h3>
+                    <p className="text-on-surface-variant font-medium max-w-xs">Зургаа чирж оруулах эсвэл сонгох.</p>
                     <input type="file" className="hidden" />
                   </div>
                 </motion.div>

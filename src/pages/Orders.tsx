@@ -41,11 +41,11 @@ export default function Orders() {
 
   const handleSubmitCreds = async (id: string) => {
     const creds = credsInput[id];
-    if (!creds?.trim()) { alert('Please enter account credentials'); return; }
+    if (!creds?.trim()) { alert('Дансны мэдээллээ оруулна уу'); return; }
     try {
       await escrow.submitCreds(id, creds);
       setEscrowTrades(prev => prev.map(t => t.id === id ? { ...t, status: 'PENDING_MIDDLEMAN_VERIFICATION', account_credentials: creds } : t));
-      alert('Credentials submitted to Middleman successfully!');
+      alert('Мэдээллийг дундын дансны зохицуулагчид амжилттай илгээлээ!');
     } catch (err: any) { alert(err.message || 'Failed to submit credentials'); }
   };
 
@@ -61,12 +61,12 @@ export default function Orders() {
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-12 pb-32">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
         <div>
-          <h1 className="text-headline-xl text-on-surface mb-2">Tactical Deployments</h1>
-          <p className="text-on-surface-variant font-medium text-lg">Track and manage your elite service deployments and middleman escrow trades.</p>
+          <h1 className="text-headline-xl text-on-surface mb-2">Захиалга & Дундын данс</h1>
+          <p className="text-on-surface-variant font-medium text-lg">Өөрийн захиалгууд болон дундын дансны гүйлгээгээ хянах, удирдах.</p>
         </div>
         <div className="flex items-center gap-4 bg-surface-container-high/50 px-6 py-3 rounded-2xl border border-outline-variant/20">
           <ShoppingBag className="w-5 h-5 text-primary" />
-          <span className="text-lg font-display font-bold text-on-surface">{userOrders.length + escrowTrades.length} Total Deployments</span>
+          <span className="text-lg font-display font-bold text-on-surface">{userOrders.length + escrowTrades.length} Нийт гүйлгээ</span>
         </div>
       </div>
 
@@ -90,7 +90,7 @@ export default function Orders() {
                 : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
             )}
           >
-            {tab === 'escrow' ? 'Middleman Escrow Trades' : 'Direct Orders'}
+            {tab === 'escrow' ? 'Дундын дансны гүйлгээ' : 'Шууд захиалгууд'}
           </button>
         ))}
       </div>
@@ -102,11 +102,11 @@ export default function Orders() {
               <ShoppingBag className="w-10 h-10 text-outline" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-headline-md text-on-surface">No Direct Deployments Found</h3>
-              <p className="text-on-surface-variant max-w-sm mx-auto">Your direct tactical history is empty. Start your first deployment to see it here.</p>
+              <h3 className="text-headline-md text-on-surface">Захиалга олдсонгүй</h3>
+              <p className="text-on-surface-variant max-w-sm mx-auto">Таны захиалгын түүх хоосон байна. Эхний захиалгаа хийгээд эндээс хянаарай.</p>
             </div>
             <button onClick={() => navigate('/services')} className="bg-primary text-on-primary px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20 cursor-pointer">
-              Browse Services
+              Үйлчилгээнүүд үзэх
             </button>
           </div>
         ) : (
@@ -130,12 +130,12 @@ export default function Orders() {
                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-outline">#{order.id.slice(0, 8)}</span>
                     </div>
                     <h3 className="text-xl font-display font-bold text-on-surface group-hover:text-primary transition-colors">
-                      {order.product_title || 'Zen Service'}
+                      {order.product_title || 'Zen Үйлчилгээ'}
                     </h3>
                     <div className="flex flex-wrap items-center gap-4 text-sm text-on-surface-variant font-medium">
                       <div className="flex items-center gap-2">
                         <Tag className="w-4 h-4 text-outline" />
-                        {order.tier} Tier
+                        Түвшин: {order.tier}
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-outline" />
@@ -148,7 +148,7 @@ export default function Orders() {
                 <div className="flex items-center justify-between lg:justify-end gap-12 w-full lg:w-auto border-t lg:border-t-0 border-outline-variant/10 pt-6 lg:pt-0">
                   <div className="text-right">
                     <div className="text-2xl font-display font-bold text-secondary">₮{order.total.toLocaleString()}</div>
-                    <div className="text-[10px] font-black uppercase tracking-widest text-outline mt-1">Total Valuation</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-outline mt-1">Нийт үнэ</div>
                   </div>
                   
                   <Link 
@@ -168,13 +168,13 @@ export default function Orders() {
         <div className="space-y-8">
           <div className="glass-card rounded-[48px] border border-outline-variant/10 p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-              <h3 className="text-xl font-display font-bold text-on-surface mb-2">My Escrow Middleman Trades</h3>
+              <h3 className="text-xl font-display font-bold text-on-surface mb-2">Миний дундын дансны гүйлгээнүүд</h3>
               <p className="text-xs text-on-surface-variant max-w-xl leading-relaxed">
-                Track your secure middleman transactions. Buyers deposit funds into escrow; Sellers provide account credentials for moderator verification.
+                Дундын дансны найдвартай гүйлгээгээ хянах. Худалдан авагч мөнгөө байршуулж, худалдагч дансны мэдээллээ оруулж шалгуулна.
               </p>
             </div>
             <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-6 py-3 rounded-2xl text-yellow-400 text-xs font-black uppercase tracking-widest">
-              <ShieldCheck className="w-4 h-4" /> Escrow Protected
+              <ShieldCheck className="w-4 h-4" /> Дундын дансаар хамгаалагдсан
             </div>
           </div>
 
@@ -182,8 +182,8 @@ export default function Orders() {
             {escrowTrades.length === 0 ? (
               <div className="glass-surface rounded-[40px] p-16 text-center border border-outline-variant/10">
                 <ShieldCheck className="w-12 h-12 text-outline mx-auto mb-4 opacity-40" />
-                <h4 className="text-lg font-bold text-on-surface mb-2">No Escrow Trades Found</h4>
-                <p className="text-xs text-on-surface-variant">You have no active or past middleman escrow transactions.</p>
+                <h4 className="text-lg font-bold text-on-surface mb-2">Дундын дансны гүйлгээ олдсонгүй</h4>
+                <p className="text-xs text-on-surface-variant">Танд идэвхтэй эсвэл өмнөх дундын дансны гүйлгээ байхгүй байна.</p>
               </div>
             ) : (
               escrowTrades.map((trade) => {
@@ -209,16 +209,16 @@ export default function Orders() {
                             "px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest",
                             isBuyer ? "bg-secondary/10 text-secondary" : "bg-purple-500/10 text-purple-400"
                           )}>
-                            {isBuyer ? 'BUYER' : 'SELLER'}
+                            {isBuyer ? 'ХУДАЛДАН АВАГЧ' : 'ХУДАЛДАГЧ'}
                           </span>
                         </div>
                         <h4 className="text-lg font-display font-bold text-on-surface">{trade.product_title}</h4>
                         <div className="text-xs text-on-surface-variant mt-1">
-                          Buyer: <span className="text-on-surface font-bold">{trade.buyer_name}</span> | Seller: <span className="text-on-surface font-bold">{trade.seller_name}</span>
+                          Худалдан авагч: <span className="text-on-surface font-bold">{trade.buyer_name}</span> | Худалдагч: <span className="text-on-surface font-bold">{trade.seller_name}</span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs text-on-surface-variant block mb-1">Escrow Hold</span>
+                        <span className="text-xs text-on-surface-variant block mb-1">Дундын дансан дахь дүн</span>
                         <span className="text-2xl font-display font-bold text-primary">₮{trade.amount.toLocaleString()}</span>
                       </div>
                     </div>
@@ -226,16 +226,16 @@ export default function Orders() {
                     {isSeller && trade.status === 'PENDING_SELLER_CREDS' && (
                       <div className="bg-surface-container-high/60 border border-outline-variant/10 rounded-3xl p-6 mb-6 space-y-4">
                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-yellow-400">
-                          <Key className="w-4 h-4" /> Action Required: Submit Account Credentials
+                          <Key className="w-4 h-4" /> Шаардлагатай үйлдэл: Дансны мэдээллээ оруулах
                         </div>
                         <p className="text-xs text-on-surface-variant">
-                          Please provide the username, password, and any necessary login instructions. These will be securely transmitted to the Middleman Moderator for verification.
+                          Нэвтрэх нэр, нууц үг болон бусад шаардлагатай зааврыг оруулна уу. Эдгээрийг дундын дансны зохицуулагч шалгах болно.
                         </p>
                         <textarea
                           rows={4}
                           value={credsInput[trade.id] || ''}
                           onChange={e => setCredsInput({ ...credsInput, [trade.id]: e.target.value })}
-                          placeholder="Username: elite_gamer&#10;Password: ********&#10;Notes: Login via Steam..."
+                          placeholder="Нэвтрэх нэр: elite_gamer&#10;Нууц үг: ********&#10;Нэмэлт: Steam-ээр нэвтэрнэ..."
                           className="w-full bg-black/50 border border-outline-variant/20 rounded-2xl py-4 px-6 text-xs font-mono text-primary focus:border-primary outline-none transition-all resize-none"
                         />
                         <div className="flex justify-end pt-2">
@@ -243,7 +243,7 @@ export default function Orders() {
                             onClick={() => handleSubmitCreds(trade.id)}
                             className="px-8 py-3 bg-primary text-on-primary font-black rounded-2xl text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
                           >
-                            Submit Credentials to Middleman
+                            Мэдээллийг дундын дансанд илгээх
                           </button>
                         </div>
                       </div>
@@ -251,24 +251,24 @@ export default function Orders() {
 
                     {isBuyer && trade.status === 'PENDING_SELLER_CREDS' && (
                       <div className="bg-surface-container-high/40 border border-outline-variant/5 rounded-3xl p-6 text-xs text-on-surface-variant flex items-center gap-3 font-medium">
-                        <Clock className="w-5 h-5 text-primary animate-pulse flex-shrink-0" /> Waiting for Seller to submit account credentials to the Middleman.
+                        <Clock className="w-5 h-5 text-primary animate-pulse flex-shrink-0" /> Худалдагч дансны мэдээллээ оруулахыг хүлээж байна.
                       </div>
                     )}
 
                     {trade.status === 'PENDING_MIDDLEMAN_VERIFICATION' && (
                       <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-3xl p-6 text-xs text-yellow-400 flex items-center gap-3 font-medium">
-                        <ShieldCheck className="w-5 h-5 animate-pulse flex-shrink-0" /> Credentials submitted. Middleman Moderator is currently verifying the account.
+                        <ShieldCheck className="w-5 h-5 animate-pulse flex-shrink-0" /> Мэдээлэл илгээгдсэн. Дундын дансны зохицуулагч бүртгэлийг шалгаж байна.
                       </div>
                     )}
 
                     {trade.status === 'COMPLETED' && (
                       <div className="bg-green-500/5 border border-green-500/10 rounded-3xl p-6 space-y-3 text-xs text-green-400 font-medium">
                         <div className="flex items-center gap-3">
-                          <CheckCircle className="w-5 h-5 flex-shrink-0" /> Trade successfully verified by Middleman.
+                          <CheckCircle className="w-5 h-5 flex-shrink-0" /> Гүйлгээг дундын дансны зохицуулагч амжилттай баталгаажууллаа.
                         </div>
                         {isBuyer && trade.account_credentials && (
                           <div className="bg-black/50 p-4 rounded-2xl font-mono text-xs text-primary border border-primary/20 whitespace-pre-wrap select-all mt-2">
-                            <div className="text-[10px] text-outline uppercase tracking-widest mb-1">Verified Account Credentials:</div>
+                            <div className="text-[10px] text-outline uppercase tracking-widest mb-1">Баталгаажсан дансны мэдээлэл:</div>
                             {trade.account_credentials}
                           </div>
                         )}
@@ -277,7 +277,7 @@ export default function Orders() {
 
                     {trade.status === 'CANCELLED' && (
                       <div className="bg-red-500/5 border border-red-500/10 rounded-3xl p-6 text-xs text-red-400 flex items-center gap-3 font-medium">
-                        <XCircle className="w-5 h-5 flex-shrink-0" /> Trade cancelled by Middleman. Escrow funds refunded to buyer balance.
+                        <XCircle className="w-5 h-5 flex-shrink-0" /> Гүйлгээг цуцаллаа. Дундын дансан дахь мөнгийг худалдан авагчийн үлдэгдэлд буцаав.
                       </div>
                     )}
                   </div>

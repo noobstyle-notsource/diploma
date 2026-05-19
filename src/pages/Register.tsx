@@ -78,7 +78,7 @@ export default function Register() {
               transition={{ delay: 0.2 }}
               className="text-on-surface-variant max-w-[320px] mx-auto font-medium"
             >
-              Start your journey today. Access elite gaming services and gear in a curated sanctuary.
+              Өнөөдөр нэгдээрэй. Тоглоомын шилдэг үйлчилгээ, бүтээгдэхүүнийг нэг дороос.
             </motion.p>
           </div>
 
@@ -92,7 +92,7 @@ export default function Register() {
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary opacity-40" />
             
             <div className="flex flex-col gap-8">
-              <h2 className="text-headline-md text-on-surface text-center">Create Account</h2>
+              <h2 className="text-headline-md text-on-surface text-center">Бүртгэл үүсгэх</h2>
 
               {error && (
                 <div className="flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm font-medium">
@@ -104,7 +104,7 @@ export default function Register() {
               <form className="flex flex-col gap-6" onSubmit={handleRegister}>
                 {/* Username */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-label-md text-on-surface-variant ml-1" htmlFor="name">Username</label>
+                  <label className="text-label-md text-on-surface-variant ml-1" htmlFor="name">Хэрэглэгчийн нэр</label>
                   <div className="relative group">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-outline w-5 h-5 group-focus-within:text-primary transition-colors" />
                     <input 
@@ -121,7 +121,7 @@ export default function Register() {
 
                 {/* Email */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-label-md text-on-surface-variant ml-1" htmlFor="email">Email Address</label>
+                  <label className="text-label-md text-on-surface-variant ml-1" htmlFor="email">И-мэйл хаяг</label>
                   <div className="relative group">
                     <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 text-outline w-5 h-5 group-focus-within:text-primary transition-colors" />
                     <input 
@@ -138,7 +138,7 @@ export default function Register() {
 
                 {/* Password */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-label-md text-on-surface-variant ml-1" htmlFor="password">Set Password</label>
+                  <label className="text-label-md text-on-surface-variant ml-1" htmlFor="password">Нууц үг</label>
                   <div className="relative group">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-outline w-5 h-5 group-focus-within:text-primary transition-colors" />
                     <input 
@@ -157,7 +157,7 @@ export default function Register() {
                 <div className="flex items-start gap-3 ml-1">
                   <input type="checkbox" id="terms" className="mt-1 w-4 h-4 rounded border-outline-variant bg-transparent text-primary focus:ring-primary" required />
                   <label htmlFor="terms" className="text-xs text-on-surface-variant leading-relaxed">
-                    I agree to the <Link to="#" className="text-secondary hover:underline">Terms of Service</Link> and <Link to="#" className="text-secondary hover:underline">Privacy Policy</Link>.
+                    Би <Link to="#" className="text-secondary hover:underline">Үйлчилгээний нөхцөл</Link> болон <Link to="#" className="text-secondary hover:underline">Нууцлалын бодлогыг</Link> зөвшөөрч байна.
                   </label>
                 </div>
 
@@ -169,7 +169,7 @@ export default function Register() {
                 >
                   {loading ? (
                     <div className="w-5 h-5 border-2 border-on-primary/20 border-t-on-primary rounded-full animate-spin" />
-                  ) : 'Join Sanctuary'}
+                  ) : 'Бүртгүүлэх'}
                 </button>
               </form>
 
@@ -185,13 +185,13 @@ export default function Register() {
                     <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
                     <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
-                  Continue with Google
+                  Google-ээр бүртгүүлэх
                 </button>
               </div>
 
               <div className="flex items-center gap-4 my-2">
                 <div className="flex-grow h-[1px] bg-outline-variant/20" />
-                <span className="text-[10px] font-black text-outline-variant uppercase tracking-[0.2em]">Already have an account?</span>
+                <span className="text-[10px] font-black text-outline-variant uppercase tracking-[0.2em]">Бүртгэлтэй юу?</span>
                 <div className="flex-grow h-[1px] bg-outline-variant/20" />
               </div>
 
@@ -201,7 +201,7 @@ export default function Register() {
                 to="/login"
                 className="w-full text-center border border-outline-variant/40 text-on-surface font-bold text-sm uppercase tracking-widest py-5 rounded-xl hover:bg-surface-variant/20 transition-all active:scale-[0.98]"
               >
-                Log In
+                Нэвтрэх
               </Link>
             </div>
           </motion.div>
@@ -210,11 +210,11 @@ export default function Register() {
           <div className="mt-12 flex justify-center gap-12">
             <button className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group">
               <Headset className="w-5 h-5 group-hover:animate-bounce" />
-              <span className="text-xs font-bold uppercase tracking-widest">Support</span>
+              <span className="text-xs font-bold uppercase tracking-widest">Тусламж</span>
             </button>
             <button className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group">
               <ShieldCheck className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-bold uppercase tracking-widest">Trust</span>
+              <span className="text-xs font-bold uppercase tracking-widest">Баталгаа</span>
             </button>
           </div>
         </div>

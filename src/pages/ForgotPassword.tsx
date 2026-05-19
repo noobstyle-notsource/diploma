@@ -28,14 +28,14 @@ export default function ForgotPassword() {
           <div className="text-center mb-12">
             <Link to="/login" className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors mb-8 group">
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span className="text-xs font-bold uppercase tracking-widest">Back to Login</span>
+              <span className="text-xs font-bold uppercase tracking-widest">Нэвтрэх хэсэг рүү буцах</span>
             </Link>
             <motion.h1 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-headline-xl text-primary mb-4"
             >
-              Access Recovery
+              Нууц үг сэргээх
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0 }}
@@ -43,7 +43,7 @@ export default function ForgotPassword() {
               transition={{ delay: 0.2 }}
               className="text-on-surface-variant max-w-[320px] mx-auto font-medium"
             >
-              Lost your access key? No problem. Provide your registered identifier to reset.
+              Нууц үгээ мартсан уу? Бүртгэлтэй и-мэйл хаягаа оруулж сэргээнэ үү.
             </motion.p>
           </div>
 
@@ -58,11 +58,11 @@ export default function ForgotPassword() {
             
             {!emailSent ? (
               <div className="flex flex-col gap-8">
-                <h2 className="text-headline-md text-on-surface text-center">Reset Access</h2>
+                <h2 className="text-headline-md text-on-surface text-center">Нууц үг сэргээх</h2>
                 
                 <form className="flex flex-col gap-6" onSubmit={handleReset}>
                   <div className="flex flex-col gap-2">
-                    <label className="text-label-md text-on-surface-variant ml-1" htmlFor="email">Account Email</label>
+                    <label className="text-label-md text-on-surface-variant ml-1" htmlFor="email">Бүртгэлтэй И-мэйл</label>
                     <div className="relative group">
                       <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 text-outline w-5 h-5 group-focus-within:text-primary transition-colors" />
                       <input 
@@ -79,7 +79,7 @@ export default function ForgotPassword() {
                     type="submit"
                     className="w-full bg-primary text-on-primary font-bold text-sm uppercase tracking-widest py-5 rounded-xl hover:bg-primary/90 transition-all active:scale-[0.98] mt-4 shadow-xl shadow-primary/10 flex items-center justify-center gap-3"
                   >
-                    <Send className="w-4 h-4" /> Send Recovery Key
+                    <Send className="w-4 h-4" /> Сэргээх холбоос илгээх
                   </button>
                 </form>
               </div>
@@ -89,16 +89,16 @@ export default function ForgotPassword() {
                   <ShieldCheck className="w-10 h-10 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-headline-md text-on-surface mb-4">Check Your Inbox</h2>
+                  <h2 className="text-headline-md text-on-surface mb-4">И-мэйлээ шалгана уу</h2>
                   <p className="text-on-surface-variant font-medium leading-relaxed">
-                    If an account exists for that email, we've sent instructions to reset your access key.
+                    Хэрэв уг и-мэйл дээр бүртгэл байгаа бол нууц үг сэргээх заавар илгээгдлээ.
                   </p>
                 </div>
                 <button 
                   onClick={() => navigate('/login')}
                   className="w-full bg-surface-container-highest/50 text-on-surface font-bold text-sm uppercase tracking-widest py-5 rounded-xl hover:bg-surface-variant transition-all active:scale-[0.98] mt-4"
                 >
-                  Return to Login
+                  Нэвтрэх хэсэг рүү буцах
                 </button>
               </div>
             )}
@@ -108,11 +108,11 @@ export default function ForgotPassword() {
           <div className="mt-12 flex justify-center gap-12">
             <button className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group">
               <Headset className="w-5 h-5 group-hover:animate-bounce" />
-              <span className="text-xs font-bold uppercase tracking-widest">Support</span>
+              <span className="text-xs font-bold uppercase tracking-widest">Тусламж</span>
             </button>
             <button className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group">
               <ShieldCheck className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-bold uppercase tracking-widest">Trust</span>
+              <span className="text-xs font-bold uppercase tracking-widest">Баталгаа</span>
             </button>
           </div>
         </div>

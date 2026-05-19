@@ -64,7 +64,7 @@ export default function ServiceDetail() {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-        <p className="text-on-surface-variant font-black uppercase tracking-[0.2em] text-xs">Querying Database...</p>
+        <p className="text-on-surface-variant font-black uppercase tracking-[0.2em] text-xs">Мэдээллийн сангаас уншиж байна...</p>
       </div>
     );
   }
@@ -72,9 +72,9 @@ export default function ServiceDetail() {
   if (error || !product) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
-        <h2 className="text-3xl font-display font-bold text-on-surface mb-4">Product Not Found</h2>
-        <p className="text-on-surface-variant max-w-sm mb-8">The requested asset has been decommissioned or moved to a restricted sector.</p>
-        <Link to="/services" className="px-10 py-4 bg-primary text-on-primary rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg">Return to Nexus</Link>
+        <h2 className="text-3xl font-display font-bold text-on-surface mb-4">Олдсонгүй</h2>
+        <p className="text-on-surface-variant max-w-sm mb-8">Уг үйлчилгээ олдсонгүй эсвэл устгагдсан байна.</p>
+        <Link to="/services" className="px-10 py-4 bg-primary text-on-primary rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg">Буцах</Link>
       </div>
     );
   }
@@ -83,18 +83,18 @@ export default function ServiceDetail() {
   const finalImgSrc = imgSrc || currentPlaceholder;
 
   const benefits = [
-    { text: 'Guaranteed Rank Security', icon: Shield },
-    { text: 'Real-time Tactical Comms', icon: Globe },
-    { text: 'VOD Review Included', icon: Video },
-    { text: 'VPN Protection & Stealth', icon: UserCheck },
+    { text: 'Баталгаатай Үр Дүн', icon: Shield },
+    { text: 'Шууд Холбоо', icon: Globe },
+    { text: 'Бичлэгт Дүн Шинжилгээ', icon: Video },
+    { text: 'VPN & Нууцлал хамгаалалт', icon: UserCheck },
   ];
 
   const pricingTiers = product.tiers && product.tiers.length > 0 
     ? product.tiers.map((t, idx) => ({
         ...t,
         index: idx,
-        description: idx === 0 ? 'Entry-level tier' : idx === 1 ? 'Optimized performance' : idx === 2 ? 'Mastery tier' : idx === 3 ? 'Diamond Level' : 'Zenith God Mode',
-        buttonText: `Select ${t.name}`,
+        description: idx === 0 ? 'Энгийн' : idx === 1 ? 'Сайжруулсан' : idx === 2 ? 'Мастер' : idx === 3 ? 'Очир эрдэнэ' : 'Төгс',
+        buttonText: `Сонгох: ${t.name}`,
         popular: idx === 1,
         style: idx === 1 ? 'primary' : idx === 2 ? 'outline' : 'glass'
       }))
@@ -103,7 +103,7 @@ export default function ServiceDetail() {
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">
       <nav className="flex items-center gap-2 text-on-surface-variant mb-12 text-sm font-medium">
-        <Link to="/services" className="hover:text-primary transition-colors">Services</Link>
+        <Link to="/services" className="hover:text-primary transition-colors">Үйлчилгээнүүд</Link>
         <ChevronRight className="w-4 h-4" />
         <span className="text-primary">{product.title}</span>
       </nav>
@@ -167,27 +167,27 @@ export default function ServiceDetail() {
                     <h2 className="text-headline-md text-on-surface">{product.seller_name}</h2>
                   </Link>
                   <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold border border-primary/20">
-                    {product.seller_rank || 'VERIFIED OPERATOR'}
+                    {product.seller_rank || 'БАТАЛГААЖСАН ОПЕРАТОР'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex text-primary">
                     {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary" />)}
                   </div>
-                  <span className="text-sm font-medium text-on-surface-variant">4.9 (1.2K+ Reviews)</span>
+                  <span className="text-sm font-medium text-on-surface-variant">4.9 (1.2K+ Үнэлгээ)</span>
                 </div>
-                <p className="text-on-surface-variant leading-relaxed">Top-tier service provider specialized in {product.category} sector deployments.</p>
+                <p className="text-on-surface-variant leading-relaxed">{product.category} чиглэлээр мэргэшсэн, өндөр зэрэглэлийн үйлчилгээ үзүүлэгч.</p>
               </div>
               
               <button onClick={handleContact} className="bg-surface-container-high hover:bg-surface-variant text-on-surface px-6 py-3 rounded-xl transition-all border border-outline/20 font-bold text-sm active:scale-95 whitespace-nowrap flex items-center gap-2 cursor-pointer">
-                <MessageSquare className="w-4 h-4" /> Contact Seller
+                <MessageSquare className="w-4 h-4" /> Худалдагчтай холбогдох
               </button>
             </motion.div>
 
             <div className="space-y-8">
               <div className="flex items-center gap-4">
                 <div className="w-2 h-10 bg-primary rounded-full" />
-                <h3 className="text-headline-md">Service Protocol</h3>
+                <h3 className="text-headline-md">Үйлчилгээний тухай</h3>
               </div>
               <div className="text-lg text-on-surface-variant leading-relaxed space-y-6">
                 <p>{product.description}</p>
@@ -204,12 +204,12 @@ export default function ServiceDetail() {
 
             <div className="space-y-8 pt-8">
               <div className="flex justify-between items-center">
-                <h3 className="text-headline-md">System Feedback</h3>
-                <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant">Verified Transactions Only</span>
+                <h3 className="text-headline-md">Сэтгэгдлүүд</h3>
+                <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant">Зөвхөн баталгаажсан хэрэглэгчид</span>
               </div>
               <div className="py-20 text-center glass-surface rounded-3xl border border-outline-variant/10">
                 <MessageSquare className="w-12 h-12 text-on-surface-variant/20 mx-auto mb-4" />
-                <p className="text-on-surface-variant font-medium">No reviews recorded for this asset yet.</p>
+                <p className="text-on-surface-variant font-medium">Одоогоор сэтгэгдэл байхгүй байна.</p>
               </div>
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function ServiceDetail() {
                     )}
                   >
                     {tier.popular && (
-                      <div className="absolute top-0 right-0 bg-primary text-on-primary px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] rounded-bl-xl shadow-lg">Popular Choice</div>
+                      <div className="absolute top-0 right-0 bg-primary text-on-primary px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] rounded-bl-xl shadow-lg">Түгээмэл</div>
                     )}
                     
                     <div className="flex justify-between items-start mb-6">
@@ -248,16 +248,16 @@ export default function ServiceDetail() {
                       </div>
                       <div className="text-right">
                         <div className={cn("text-2xl font-display font-bold", themeColor)}>₮{tier.price.toLocaleString()}</div>
-                        <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{product.per_unit || '/ session'}</div>
+                        <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{product.per_unit || '/ удаа'}</div>
                       </div>
                     </div>
 
                     <ul className="space-y-3 mb-8">
                        <li className="flex items-center gap-3 text-sm font-medium text-on-surface-variant">
-                          <CheckCircle className={cn("w-4 h-4", themeColor)} /> Full Protocol Access
+                          <CheckCircle className={cn("w-4 h-4", themeColor)} /> Бүрэн эрхт хандалт
                         </li>
                         <li className="flex items-center gap-3 text-sm font-medium text-on-surface-variant">
-                          <CheckCircle className={cn("w-4 h-4", themeColor)} /> Secure Encrypted Comms
+                          <CheckCircle className={cn("w-4 h-4", themeColor)} /> Аюулгүй холболт
                         </li>
                     </ul>
 
@@ -275,7 +275,7 @@ export default function ServiceDetail() {
                         onClick={() => handleEscrowOrder(tier.index)}
                         className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center gap-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500 hover:text-black hover:scale-105 active:scale-95 cursor-pointer"
                       >
-                        <Shield className="w-4 h-4" /> Buy with Middleman Escrow
+                        <Shield className="w-4 h-4" /> Баталгаат дундын дансаар авах
                       </button>
                     </div>
                   </div>
@@ -285,10 +285,10 @@ export default function ServiceDetail() {
               <div className="p-8 rounded-2xl bg-surface-container-lowest/50 border border-outline-variant/10 shadow-inner">
                 <div className="flex items-center gap-3 mb-3">
                   <Shield className="w-5 h-5 text-primary" />
-                  <span className="text-xs font-black uppercase tracking-widest text-on-surface">Zen-Gamer Protection</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-on-surface">Zen-Gamer Баталгаа</span>
                 </div>
                 <p className="text-sm text-on-surface-variant leading-relaxed font-medium">
-                  Your funds are held in escrow until the service is confirmed complete by you. 100% money-back guarantee on all deployments.
+                  Таны мөнгө үйлчилгээ бүрэн дуусах хүртэл дундын дансанд хадгалагдана. 100% мөнгөө буцааж авах баталгаатай.
                 </p>
               </div>
             </div>

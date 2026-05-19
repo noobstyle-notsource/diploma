@@ -18,24 +18,24 @@ export default function Home() {
 
 
   const categories = [
-    { label: 'Boosting', desc: 'Rank up with elite operators.', link: '/services?search=boosting', color: 'primary' },
-    { label: 'Coaching', desc: 'Master classes from top 100.', link: '/services?search=coaching', color: 'secondary' },
-    { label: 'Rentals', desc: 'Access legendary gear.', link: '/services?search=rentals', color: 'tertiary' },
-    { label: 'Marketplace', desc: 'Trade digital assets.', link: '/services', color: 'primary' },
-    { label: 'Gear', desc: 'Pro hardware & tech.', link: '/products?category=Gear', color: 'secondary' },
-    { label: 'Supplements', desc: 'Neural focus & flow.', link: '/products?category=Supplements', color: 'tertiary' },
+    { label: 'Рэнк ахиулах', desc: 'Элит тоглогчидтой хамт цолоо ахиулах.', link: '/services?search=boosting', color: 'primary' },
+    { label: 'Сургалт', desc: 'Шилдэг 100 тоглогчийн мастер хичээл.', link: '/services?search=coaching', color: 'secondary' },
+    { label: 'Түрээс', desc: 'Ховор тоног төхөөрөмж түрээслэх.', link: '/services?search=rentals', color: 'tertiary' },
+    { label: 'Маркетплейс', desc: 'Дижитал хөрөнгө арилжаалах.', link: '/services', color: 'primary' },
+    { label: 'Тоног төхөөрөмж', desc: 'Мэргэжлийн техник хэрэгсэл.', link: '/products?category=Gear', color: 'secondary' },
+    { label: 'Нэмэлт бүтээгдэхүүн', desc: 'Мэдрэлийн төвлөрөл болон урсгал.', link: '/products?category=Supplements', color: 'tertiary' },
   ];
 
   const protocols = [
-    { step: '01', title: 'Operator Selection', desc: 'Browse and select from our pool of verified global masters.', icon: Users },
-    { step: '02', title: 'Secure Deployment', desc: 'Your assets are protected via encrypted Zen-Shield protocols.', icon: Lock },
-    { step: '03', title: 'Elite Execution', desc: 'Real-time monitoring and delivery of your competitive edge.', icon: Zap },
+    { step: '01', title: 'Мэргэжилтнүүд', desc: 'Дэлхийн шилдэг, баталгаатай операторуудаас сонголт хийх.', icon: Users },
+    { step: '02', title: 'Аюулгүй байдал', desc: 'Таны гүйлгээ болон мэдээлэл Zen-Shield системээр бүрэн хамгаалагдана.', icon: Lock },
+    { step: '03', title: 'Гүйцэтгэл', desc: 'Бодит хугацааны хяналт болон найдвартай үйлчилгээний хүргэлт.', icon: Zap },
   ];
 
   const trustBadges = [
-    { title: 'Zen-Shield Protection', desc: 'Every transaction is encrypted and insured.', icon: ShieldCheck },
-    { title: 'Global Infrastructure', desc: 'Low-latency node networks for all services.', icon: Globe },
-    { title: 'Verified Operators', desc: 'Only the top 1% of talent is allowed to deploy.', icon: Trophy },
+    { title: 'Zen-Shield Хамгаалалт', desc: 'Гүйлгээ бүр шифрлэгдсэн бөгөөд баталгаажсан.', icon: ShieldCheck },
+    { title: 'Дэлхийн Дэд Бүтэц', desc: 'Бүх үйлчилгээнд зориулсан хоцрогдол багатай сүлжээ.', icon: Globe },
+    { title: 'Баталгаатай Операторууд', desc: 'Зөвхөн шилдэг 1%-ийн ур чадвартай тоглогчид үйлчилгээ үзүүлнэ.', icon: Trophy },
   ];
 
   return (
@@ -138,7 +138,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent p-12 flex flex-col justify-end z-10">
               <span className="text-xs font-black uppercase tracking-[0.3em] text-secondary mb-3 drop-shadow-[0_0_8px_rgba(191,127,255,0.8)]">Мэдрэлийн Тоног Төхөөрөмж</span>
               <h3 className="text-4xl font-display font-black text-on-surface mb-3 group-hover:text-secondary transition-colors drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Дээд Зэргийн Тоног Төхөөрөмж</h3>
-              <p className="text-on-surface-variant font-medium text-lg max-w-md leading-relaxed">High-performance esports hardware and neural supplements.</p>
+              <p className="text-on-surface-variant font-medium text-lg max-w-md leading-relaxed">Цахим спортын өндөр үзүүлэлттэй төхөөрөмж болон нэмэлт бүтээгдэхүүнүүд.</p>
             </div>
             <div className="absolute inset-0 scanline opacity-30 group-hover:opacity-60 transition-opacity" />
           </Link>
@@ -150,8 +150,8 @@ export default function Home() {
         <div className="absolute inset-0 cyber-grid opacity-50" />
         <div className="max-w-7xl mx-auto px-6 md:px-10 relative z-10">
           <div className="text-center mb-24 max-w-3xl mx-auto">
-            <h2 className="text-headline-xl text-on-surface mb-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">The Deployment Protocol</h2>
-            <p className="text-on-surface-variant text-lg md:text-xl font-medium leading-relaxed">Our surgical three-step lifecycle ensures every competitive advantage is deployed with zero friction and absolute security.</p>
+            <h2 className="text-headline-xl text-on-surface mb-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Ажиллах зарчим</h2>
+            <p className="text-on-surface-variant text-lg md:text-xl font-medium leading-relaxed">Бидний 3 үе шаттай систем нь таны давуу талыг ямар ч саадгүй, бүрэн аюулгүй орчинд олгоно.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
@@ -185,11 +185,11 @@ export default function Home() {
           
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
             <div className="max-w-2xl">
-              <h2 className="text-headline-lg text-on-surface mb-4 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Trending Deployments</h2>
-              <p className="text-on-surface-variant font-medium text-lg leading-relaxed">The most highly requested elite services and hardware in the global sanctuary right now.</p>
+              <h2 className="text-headline-lg text-on-surface mb-4 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Эрэлттэй үйлчилгээ & бүтээгдэхүүн</h2>
+              <p className="text-on-surface-variant font-medium text-lg leading-relaxed">Одоогоор хамгийн их эрэлттэй байгаа шилдэг үйлчилгээ болон техник хангамжууд.</p>
             </div>
             <Link to="/services" className="text-primary text-sm font-black uppercase tracking-[0.2em] hover:drop-shadow-[0_0_12px_rgba(0,255,204,0.8)] transition-all flex items-center gap-3 group pb-2 border-b-2 border-primary/40 hover:border-primary">
-              View Nexus <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+              Бүгдийг үзэх <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
             </Link>
           </div>
 
@@ -214,14 +214,14 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div>
             <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-black uppercase tracking-[0.3em] mb-8 shadow-[0_0_20px_rgba(0,255,204,0.2)]">
-              <ShieldCheck className="w-4 h-4 animate-pulse drop-shadow-[0_0_8px_rgba(0,255,204,1)]" /> Zen-Shield active
+              <ShieldCheck className="w-4 h-4 animate-pulse drop-shadow-[0_0_8px_rgba(0,255,204,1)]" /> Zen-Shield идэвхтэй
             </div>
-            <h2 className="text-headline-xl text-on-surface mb-8 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Uncompromising <br /><span className="text-gradient-cyber italic">Security.</span></h2>
+            <h2 className="text-headline-xl text-on-surface mb-8 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Найдвартай <br /><span className="text-gradient-cyber italic">Аюулгүй байдал.</span></h2>
             <p className="text-xl text-on-surface-variant font-medium mb-12 leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-              We've engineered an impenetrable fortress that protects both elite operators and clients. Every deployment is handled within a secure, fully encrypted ecosystem.
+              Бид үйлчлүүлэгчид болон операторуудаа хамгаалах найдвартай системийг бүтээсэн. Гүйлгээ бүр бүрэн шифрлэгдсэн аюулгүй орчинд хийгдэнэ.
             </p>
             <div className="space-y-6">
-              {['End-to-end encrypted messaging', 'Insured transaction protection', 'Verified hardware supply chain'].map(item => (
+              {['Төгсгөлөөс төгсгөл хүртэлх шифрлэгдсэн зурвас', 'Баталгаат гүйлгээний хамгаалалт', 'Баталгаажсан техник хангамжийн нийлүүлэлт'].map(item => (
                 <div key={item} className="flex items-center gap-4 text-on-surface font-bold text-lg glass-card px-6 py-4 rounded-2xl border-primary/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
                   <CheckCircle2 className="w-6 h-6 text-primary drop-shadow-[0_0_8px_rgba(0,255,204,0.8)]" /> {item}
                 </div>
@@ -249,8 +249,8 @@ export default function Home() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-tertiary/10 blur-[160px] rounded-full pointer-events-none animate-pulse" />
         
         <div className="text-center mb-24 max-w-3xl mx-auto relative z-10">
-          <h2 className="text-headline-lg text-on-surface mb-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Sector Exploration</h2>
-          <p className="text-on-surface-variant font-medium text-lg md:text-xl leading-relaxed">Deep-dive into specialized elite competitive categories and master-class sectors.</p>
+          <h2 className="text-headline-lg text-on-surface mb-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Ангиллын хайгуул</h2>
+          <p className="text-on-surface-variant font-medium text-lg md:text-xl leading-relaxed">Төрөлжсөн элит өрсөлдөөний ангилал болон мастер түвшний үйлчилгээнүүдтэй танилцах.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 px-6 md:px-12 pb-12 relative z-10">
           {categories.map((cat) => (
@@ -274,7 +274,7 @@ export default function Home() {
                   <p className="text-base text-on-surface-variant font-medium leading-relaxed max-w-xs">{cat.desc}</p>
                 </div>
                 <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.3em] text-xs opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-15px] group-hover:translate-x-0 drop-shadow-[0_0_8px_rgba(0,255,204,0.8)]">
-                  Deploy Sector <ArrowRight className="w-4 h-4" />
+                  Үзэх <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
             </Link>

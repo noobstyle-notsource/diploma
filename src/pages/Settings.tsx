@@ -21,21 +21,21 @@ export default function Settings() {
   };
 
   const tabs = [
-    { id: 'security', label: 'Security Core', icon: ShieldCheck },
-    { id: 'profile', label: 'Operator Identity', icon: User },
-    { id: 'preferences', label: 'System Prefs', icon: Globe },
+    { id: 'security', label: 'Аюулгүй байдал', icon: ShieldCheck },
+    { id: 'profile', label: 'Хэрэглэгчийн мэдээлэл', icon: User },
+    { id: 'preferences', label: 'Тохиргоо', icon: Globe },
   ] as const;
 
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
         <div>
-          <h1 className="text-headline-xl text-on-surface mb-2">System Config</h1>
-          <p className="text-on-surface-variant font-medium">Manage your Operator identity and security protocols.</p>
+          <h1 className="text-headline-xl text-on-surface mb-2">Системийн тохиргоо</h1>
+          <p className="text-on-surface-variant font-medium">Өөрийн бүртгэл болон аюулгүй байдлын тохиргоог удирдах.</p>
         </div>
         <div className="flex gap-4">
           <button onClick={() => navigate('/profile')} className="px-8 py-3 rounded-xl border border-outline-variant text-on-surface font-bold text-sm hover:bg-surface-variant/20 transition-all">
-            Return to Profile
+            Профайл руу буцах
           </button>
         </div>
       </div>
@@ -71,14 +71,14 @@ export default function Settings() {
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
                   <div>
                     <h2 className="text-2xl font-display font-bold text-on-surface mb-6 flex items-center gap-3">
-                      <Key className="w-6 h-6 text-primary" /> Access Credentials
+                      <Key className="w-6 h-6 text-primary" /> Нэвтрэх мэдээлэл
                     </h2>
-                    <p className="text-sm text-on-surface-variant mb-8">Update your encryption keys. Strong alphanumerics recommended.</p>
+                    <p className="text-sm text-on-surface-variant mb-8">Нууц үгээ шинэчлэх. Найдвартай нууц үг ашиглахыг зөвлөж байна.</p>
                   </div>
                   
                   <div className="space-y-6 max-w-xl">
                     <div className="space-y-3">
-                      <label className="text-label-md text-primary ml-1">Current Protocol (Password)</label>
+                      <label className="text-label-md text-primary ml-1">Одоогийн нууц үг</label>
                       <div className="relative">
                         <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-outline" />
                         <input type="password" placeholder="••••••••" className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 pl-16 pr-8 text-on-surface focus:border-primary outline-none transition-all font-mono" />
@@ -86,7 +86,7 @@ export default function Settings() {
                     </div>
                     
                     <div className="space-y-3">
-                      <label className="text-label-md text-primary ml-1">New Protocol Key</label>
+                      <label className="text-label-md text-primary ml-1">Шинэ нууц үг</label>
                       <div className="relative">
                         <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-outline" />
                         <input type="password" placeholder="••••••••" className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 pl-16 pr-8 text-on-surface focus:border-primary outline-none transition-all font-mono" />
@@ -94,7 +94,7 @@ export default function Settings() {
                     </div>
                     
                     <div className="space-y-3">
-                      <label className="text-label-md text-primary ml-1">Verify New Protocol</label>
+                      <label className="text-label-md text-primary ml-1">Шинэ нууц үг давтах</label>
                       <div className="relative">
                         <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-outline" />
                         <input type="password" placeholder="••••••••" className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 pl-16 pr-8 text-on-surface focus:border-primary outline-none transition-all font-mono" />
@@ -108,24 +108,24 @@ export default function Settings() {
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
                   <div>
                     <h2 className="text-2xl font-display font-bold text-on-surface mb-6 flex items-center gap-3">
-                      <User className="w-6 h-6 text-primary" /> Public Identity
+                      <User className="w-6 h-6 text-primary" /> Хэрэглэгчийн мэдээлэл
                     </h2>
-                    <p className="text-sm text-on-surface-variant mb-8">This information will be visible to other operators in the nexus.</p>
+                    <p className="text-sm text-on-surface-variant mb-8">Энэ мэдээлэл нь бусад хэрэглэгчдэд харагдах болно.</p>
                   </div>
                   
                   <div className="space-y-6 max-w-xl">
                     <div className="space-y-3">
-                      <label className="text-label-md text-primary ml-1">Callsign (Username)</label>
+                      <label className="text-label-md text-primary ml-1">Хэрэглэгчийн нэр</label>
                       <input type="text" placeholder="e.g. Neon_Samurai" className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 px-8 text-on-surface focus:border-primary outline-none transition-all font-display font-medium tracking-wide" />
                     </div>
                     
                     <div className="space-y-3">
-                      <label className="text-label-md text-primary ml-1">Comms Uplink (Email)</label>
+                      <label className="text-label-md text-primary ml-1">И-мэйл хаяг</label>
                       <input type="email" placeholder="samurai@zen-gamer.com" className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 px-8 text-on-surface focus:border-primary outline-none transition-all" />
                     </div>
                     
                     <div className="space-y-3">
-                      <label className="text-label-md text-primary ml-1">Operator Bio</label>
+                      <label className="text-label-md text-primary ml-1">Танилцуулга</label>
                       <textarea rows={4} placeholder="Your legacy starts here..." className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-5 px-8 text-on-surface focus:border-primary outline-none transition-all resize-none leading-relaxed" />
                     </div>
                   </div>
@@ -136,16 +136,16 @@ export default function Settings() {
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
                   <div>
                     <h2 className="text-2xl font-display font-bold text-on-surface mb-6 flex items-center gap-3">
-                      <Globe className="w-6 h-6 text-primary" /> System Directives
+                      <Globe className="w-6 h-6 text-primary" /> Системийн тохиргоо
                     </h2>
-                    <p className="text-sm text-on-surface-variant mb-8">Configure your local client settings and notification flows.</p>
+                    <p className="text-sm text-on-surface-variant mb-8">Мэдэгдэл болон бусад тохиргоог удирдах.</p>
                   </div>
                   
                   <div className="space-y-6 max-w-xl">
                     <div className="flex items-center justify-between p-6 bg-surface-container-high/50 rounded-2xl border border-outline-variant/20">
                       <div>
-                        <h4 className="text-sm font-bold text-on-surface mb-1">Tactical Alerts (Email)</h4>
-                        <p className="text-xs text-on-surface-variant">Receive comms when your order updates.</p>
+                        <h4 className="text-sm font-bold text-on-surface mb-1">Захиалгын мэдэгдэл (И-мэйл)</h4>
+                        <p className="text-xs text-on-surface-variant">Захиалгын төлөв өөрчлөгдөх үед и-мэйл хүлээн авах.</p>
                       </div>
                       <div className="w-12 h-6 bg-primary rounded-full relative cursor-pointer">
                         <div className="w-5 h-5 bg-on-primary rounded-full absolute right-0.5 top-0.5 shadow-md"></div>
@@ -154,8 +154,8 @@ export default function Settings() {
                     
                     <div className="flex items-center justify-between p-6 bg-surface-container-high/50 rounded-2xl border border-outline-variant/20">
                       <div>
-                        <h4 className="text-sm font-bold text-on-surface mb-1">Market Radar</h4>
-                        <p className="text-xs text-on-surface-variant">Get notified about premium drops.</p>
+                        <h4 className="text-sm font-bold text-on-surface mb-1">Зах зээлийн мэдээ</h4>
+                        <p className="text-xs text-on-surface-variant">Шинэ үйлчилгээ, урамшууллын мэдээлэл авах.</p>
                       </div>
                       <div className="w-12 h-6 bg-surface-container-highest rounded-full relative cursor-pointer border border-outline-variant/30">
                         <div className="w-5 h-5 bg-outline rounded-full absolute left-0.5 top-0.5 shadow-md"></div>
@@ -174,9 +174,9 @@ export default function Settings() {
                   {loading ? (
                     <div className="w-5 h-5 border-2 border-on-primary/20 border-t-on-primary rounded-full animate-spin" />
                   ) : success ? (
-                    <>Configuration Saved <ShieldCheck className="w-5 h-5" /></>
+                    <>Тохиргоо хадгалагдлаа <ShieldCheck className="w-5 h-5" /></>
                   ) : (
-                    <>Commit Changes <Save className="w-5 h-5" /></>
+                    <>Хадгалах <Save className="w-5 h-5" /></>
                   )}
                 </button>
               </div>

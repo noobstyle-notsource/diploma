@@ -66,10 +66,10 @@ export default function Services() {
   };
 
   const categories: { id: string; label: string }[] = [
-    { id: 'All', label: 'Total Nexus' },
-    { id: 'Boosting', label: 'Rank Boosting' },
-    { id: 'Coaching', label: 'Pro Coaching' },
-    { id: 'Rentals', label: 'Account Rentals' },
+    { id: 'All', label: 'Бүгд' },
+    { id: 'Boosting', label: 'Зэрэг нэмэх' },
+    { id: 'Coaching', label: 'Дасгалжуулалт' },
+    { id: 'Rentals', label: 'Аккаунт түрээс' },
   ];
 
   useEffect(() => {
@@ -96,9 +96,9 @@ export default function Services() {
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">
       <section className="mb-16">
-        <h1 className="text-headline-xl text-on-surface mb-4 font-display">Zen Nexus</h1>
+        <h1 className="text-headline-xl text-on-surface mb-4 font-display">Үйлчилгээнүүд</h1>
         <p className="text-on-surface-variant text-lg max-w-2xl leading-relaxed font-medium">
-          The ultimate clearing house for digital competitive advantages. Explore elite rank boosting, master-class coaching, and secure account rentals.
+          Шилдэг өрсөлдөөний давуу талыг олгох платформ.
         </p>
       </section>
 
@@ -107,7 +107,7 @@ export default function Services() {
           <div className="glass-card rounded-[32px] p-8 sticky top-28 shadow-2xl border-outline-variant/10">
             <div className="flex flex-col gap-12">
               <div>
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-8 ml-1">Selection Mode</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-8 ml-1">Ангилал</h3>
                 <div className="flex flex-col gap-3">
                   {categories.map((cat) => (
                     <button 
@@ -128,7 +128,7 @@ export default function Services() {
               </div>
 
               <div>
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-8 ml-1">Valuation Caps</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-8 ml-1">Үнийн хязгаар</h3>
                 <div className="px-1">
                   <input 
                     type="range" min="0" max="5000000" step="50000" value={priceRange}
@@ -136,8 +136,8 @@ export default function Services() {
                     className="w-full h-1.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-primary" 
                   />
                   <div className="flex justify-between mt-6 text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
-                    <span>Min ₮0</span>
-                    <span className="text-primary">₮{priceRange.toLocaleString()} Max</span>
+                    <span>Доод ₮0</span>
+                    <span className="text-primary">₮{priceRange.toLocaleString()} Дээд</span>
                   </div>
                 </div>
               </div>
@@ -146,7 +146,7 @@ export default function Services() {
                 onClick={() => { setSelectedCategory('All'); setPriceRange(5000000); handleLocalSearch(''); }}
                 className="w-full flex items-center justify-center gap-3 py-5 bg-surface-container-high/50 border border-outline-variant/10 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface rounded-2xl hover:bg-surface-variant transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
               >
-                <Filter className="w-3.5 h-3.5" /> Purge Filters
+                <Filter className="w-3.5 h-3.5" /> Шүүлтүүр цэвэрлэх
               </button>
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function Services() {
             <div className="relative w-full md:max-w-md group">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-outline group-focus-within:text-primary transition-colors" />
               <input 
-                type="text" placeholder="Query the database..."
+                type="text" placeholder="Хайх..."
                 value={searchQuery} onChange={(e) => handleLocalSearch(e.target.value)}
                 className="w-full bg-surface-container-low/30 border border-outline-variant/10 rounded-[28px] pl-16 pr-6 py-5 text-sm focus:border-primary/50 outline-none transition-all shadow-inner backdrop-blur-md"
               />
@@ -166,7 +166,7 @@ export default function Services() {
               <div className="flex items-center gap-3 px-6 py-3 rounded-2xl glass-card border-primary/20">
                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(129,212,220,1)]" />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                  {loading ? 'Syncing...' : `${filteredServices.length} Assets Found`}
+                  {loading ? 'Уншиж байна...' : `${filteredServices.length} Үр дүн олдлоо`}
                 </span>
               </div>
             </div>
@@ -201,8 +201,8 @@ export default function Services() {
               <div className="w-20 h-20 bg-surface-container-high rounded-[32px] flex items-center justify-center mx-auto mb-8 border border-outline-variant/10">
                 <Search className="w-10 h-10 text-on-surface-variant opacity-20" />
               </div>
-              <h3 className="text-2xl font-display font-bold text-on-surface mb-2">No results found</h3>
-              <p className="text-on-surface-variant max-w-xs mx-auto">Query returned zero results. Try adjusting your search or filters.</p>
+              <h3 className="text-2xl font-display font-bold text-on-surface mb-2">Үр дүн олдсонгүй</h3>
+              <p className="text-on-surface-variant max-w-xs mx-auto">Хайлтад тохирох үр дүн олдсонгүй.</p>
             </div>
           )}
         </div>

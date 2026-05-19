@@ -59,7 +59,7 @@ export default function Messages() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setNewMessage(prev => `${prev} [Attachment: ${file.name}] `);
+      setNewMessage(prev => `${prev} [Хавсралт: ${file.name}] `);
     }
   };
 
@@ -83,14 +83,14 @@ export default function Messages() {
         {/* Chat List */}
         <aside className="w-full md:w-96 border-r border-outline-variant/10 flex flex-col bg-surface-container-low/20">
           <div className="p-8 space-y-6">
-            <h2 className="text-headline-md text-on-surface">Messages</h2>
+            <h2 className="text-headline-md text-on-surface">Зурвас</h2>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
-              <input type="text" placeholder="Search conversations..." className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-4 pl-12 pr-4 text-sm focus:border-primary outline-none transition-all placeholder:text-outline" />
+              <input type="text" placeholder="Харилцан яриа хайх..." className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-2xl py-4 pl-12 pr-4 text-sm focus:border-primary outline-none transition-all placeholder:text-outline" />
             </div>
           </div>
           <div className="flex-grow overflow-y-auto px-4 pb-8 space-y-2">
-            {chats.length === 0 && <p className="text-center text-sm text-on-surface-variant py-8">No conversations yet.</p>}
+            {chats.length === 0 && <p className="text-center text-sm text-on-surface-variant py-8">Харилцан яриа байхгүй байна.</p>}
             {chats.map(chat => {
               const other = currentUserId === chat.buyer_id ? chat.seller_name : chat.buyer_name;
               const isSelected = selectedChat?.id === chat.id;
@@ -109,7 +109,7 @@ export default function Messages() {
                         <div className="w-6 h-6 bg-secondary text-on-secondary text-[10px] font-black rounded-full flex items-center justify-center">{chat.unread}</div>
                       )}
                     </div>
-                    <p className={cn("text-sm truncate", isSelected ? "text-on-primary/80" : "text-on-surface-variant")}>{chat.product_title ?? 'Direct message'}</p>
+                    <p className={cn("text-sm truncate", isSelected ? "text-on-primary/80" : "text-on-surface-variant")}>{chat.product_title ?? 'Шууд зурвас'}</p>
                   </div>
                 </button>
               );
@@ -131,7 +131,7 @@ export default function Messages() {
                   </div>
                   <div>
                     <h3 className="text-headline-md text-on-surface">{currentUserId === selectedChat.buyer_id ? selectedChat.seller_name : selectedChat.buyer_name}</h3>
-                    <span className="text-xs font-black uppercase tracking-widest text-primary">Active Now</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-primary">Идэвхтэй байна</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
@@ -142,7 +142,7 @@ export default function Messages() {
               </header>
 
               <div className="flex-grow overflow-y-auto p-12 space-y-10">
-                {messages.length === 0 && <p className="text-center text-sm text-on-surface-variant">No messages yet. Say hello!</p>}
+                {messages.length === 0 && <p className="text-center text-sm text-on-surface-variant">Зурвас байхгүй байна. Эхлээд мэндчилээрэй!</p>}
                 {messages.map(msg => {
                   const isMe = msg.sender_id === currentUserId;
                   return (
@@ -190,14 +190,14 @@ export default function Messages() {
                 <form onSubmit={handleSend} className="bg-surface-container-high/50 border border-outline-variant/20 rounded-3xl p-3 flex items-center gap-3 shadow-inner">
                   <button type="button" onClick={() => handleFileClick('file')} className="p-3 text-on-surface-variant hover:text-primary transition-colors"><Paperclip className="w-5 h-5" /></button>
                   <button type="button" onClick={() => handleFileClick('image')} className="p-3 text-on-surface-variant hover:text-primary transition-colors"><ImageIcon className="w-5 h-5" /></button>
-                  <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Type your message..." className="flex-grow bg-transparent border-none py-3 px-2 text-sm text-on-surface focus:ring-0 outline-none placeholder:text-outline/60" />
+                  <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Зурвас бичих..." className="flex-grow bg-transparent border-none py-3 px-2 text-sm text-on-surface focus:ring-0 outline-none placeholder:text-outline/60" />
                   <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className={cn("p-3 transition-colors", showEmojiPicker ? "text-primary" : "text-on-surface-variant hover:text-primary")}><Smile className="w-5 h-5" /></button>
                   <button type="submit" disabled={sending || !newMessage.trim()} className="w-14 h-14 bg-primary text-on-primary rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-50"><Send className="w-6 h-6" /></button>
                 </form>
               </footer>
             </>
           ) : (
-            <div className="flex-grow flex items-center justify-center text-on-surface-variant text-sm">Select a conversation to start messaging.</div>
+            <div className="flex-grow flex items-center justify-center text-on-surface-variant text-sm">Харилцах хүнээ сонгоно уу.</div>
           )}
         </main>
       </div>

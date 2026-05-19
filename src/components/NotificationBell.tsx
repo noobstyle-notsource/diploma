@@ -76,9 +76,9 @@ export default function NotificationBell() {
             className="absolute right-0 mt-4 w-80 glass-surface rounded-3xl border border-outline-variant/20 shadow-2xl overflow-hidden z-[100]"
           >
             <div className="p-4 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-high/50">
-              <h3 className="text-xs font-black uppercase tracking-widest text-on-surface">Notifications</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-on-surface">Мэдэгдлүүд</h3>
               {unreadCount > 0 && (
-                <button onClick={handleReadAll} className="text-[10px] font-bold text-primary hover:underline">Mark all read</button>
+                <button onClick={handleReadAll} className="text-[10px] font-bold text-primary hover:underline">Бүгдийг уншсанаар тэмдэглэх</button>
               )}
             </div>
 
@@ -88,7 +88,7 @@ export default function NotificationBell() {
                   <div className="w-12 h-12 bg-surface-container-highest rounded-2xl flex items-center justify-center mx-auto text-outline">
                     <Bell className="w-6 h-6" />
                   </div>
-                  <p className="text-xs font-medium text-on-surface-variant">No alerts at the moment.</p>
+                  <p className="text-xs font-medium text-on-surface-variant">Одоогоор мэдэгдэл байхгүй байна.</p>
                 </div>
               ) : (
                 <div className="divide-y divide-outline-variant/5">
@@ -123,7 +123,7 @@ export default function NotificationBell() {
                 onClick={() => setOpen(false)}
                 className="block p-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-outline hover:text-primary transition-colors bg-surface-container-high/30 border-t border-outline-variant/10"
               >
-                View Activity Log
+                Бүх мэдэгдлийг харах
               </Link>
             )}
           </motion.div>

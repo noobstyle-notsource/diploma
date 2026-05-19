@@ -58,12 +58,12 @@ export default function Profile() {
 
   const handleRefresh = () => {
     fetchData().then(() => {
-      alert(`Sync Complete! Found ${myProducts.length} products linked to your ID.`);
+      alert(`Мэдээлэл шинэчлэгдлээ! Таны бүртгэлд ${myProducts.length} үйлчилгээ байна.`);
     });
   };
 
   const handleDeleteProduct = async (prodId: string) => {
-    if (!window.confirm('Are you sure you want to terminate this deployment?')) return;
+    if (!window.confirm('Та энэ үйлчилгээг устгахдаа итгэлтэй байна уу?')) return;
     try {
       await products.delete(prodId);
       setMyProducts(prev => prev.filter(p => p.id !== prodId));
@@ -79,13 +79,13 @@ export default function Profile() {
 
 
   const stats = isOwnProfile ? [
-    { label: 'Orders', value: String(userOrders.length), icon: ShoppingBag },
-    { label: 'Rank', value: user?.rank ?? '—', icon: Trophy },
-    { label: 'Verified Status', value: 'Active', icon: ShieldCheck },
+    { label: 'Захиалга', value: String(userOrders.length), icon: ShoppingBag },
+    { label: 'Зэрэг', value: user?.rank ?? '—', icon: Trophy },
+    { label: 'Баталгаажилт', value: 'Идэвхтэй', icon: ShieldCheck },
   ] : [
-    { label: 'Rank', value: user?.rank ?? '—', icon: Trophy },
-    { label: 'Member Since', value: String(new Date(user?.created_at ?? Date.now()).getFullYear()), icon: Calendar },
-    { label: 'Verified Status', value: 'Verified', icon: ShieldCheck },
+    { label: 'Зэрэг', value: user?.rank ?? '—', icon: Trophy },
+    { label: 'Нэгдсэн огноо', value: String(new Date(user?.created_at ?? Date.now()).getFullYear()), icon: Calendar },
+    { label: 'Баталгаажилт', value: 'Баталгаажсан', icon: ShieldCheck },
   ];
 
   if (loading) {
@@ -100,9 +100,9 @@ export default function Profile() {
     return (
       <div className="max-w-2xl mx-auto px-6 py-20 text-center">
         <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-        <p className="text-on-surface-variant">{error || 'Please log in to view your profile.'}</p>
+        <p className="text-on-surface-variant">{error || 'Профайлаа үзэхийн тулд нэвтэрнэ үү.'}</p>
         <button onClick={() => navigate('/login')} className="mt-6 bg-primary text-on-primary px-8 py-3 rounded-xl font-bold text-sm">
-          Go to Login
+          Нэвтрэх
         </button>
       </div>
     );
@@ -148,7 +148,7 @@ export default function Profile() {
               <div className="w-full flex items-center justify-between p-4 bg-surface-container-high rounded-2xl">
                 <div className="flex items-center gap-3">
                   <CreditCard className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-bold text-on-surface text-left">Member Since</span>
+                  <span className="text-sm font-bold text-on-surface text-left">Нэгдсэн огноо</span>
                 </div>
                 <span className="text-lg font-display font-bold text-secondary">{new Date(user.created_at).getFullYear()}</span>
               </div>
@@ -157,12 +157,12 @@ export default function Profile() {
                 <>
                   <button onClick={() => navigate('/settings')} className="w-full flex items-center gap-3 p-4 hover:bg-surface-container-high/50 text-on-surface-variant hover:text-on-surface rounded-2xl transition-all group">
                     <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform" />
-                    <span className="text-sm font-bold text-left">Account Settings</span>
+                    <span className="text-sm font-bold text-left">Бүртгэлийн тохиргоо</span>
                   </button>
                   
                   <button onClick={handleLogout} className="w-full flex items-center gap-3 p-4 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all">
                     <LogOut className="w-5 h-5" />
-                    <span className="text-sm font-bold text-left">Logout</span>
+                    <span className="text-sm font-bold text-left">Гарах</span>
                   </button>
                 </>
               )}
@@ -171,7 +171,7 @@ export default function Profile() {
 
           <div className="glass-card rounded-3xl p-8 border-outline-variant/10">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-label-md text-primary">System Diagnostics</h3>
+              <h3 className="text-label-md text-primary">Системийн мэдээлэл</h3>
               <button onClick={handleRefresh} className="p-1 hover:bg-primary/10 rounded-lg transition-all text-primary">
                 <Clock className="w-4 h-4" />
               </button>
@@ -179,27 +179,27 @@ export default function Profile() {
 
             <div className="space-y-4 font-mono text-[10px] break-all">
               <div className="flex flex-col gap-1">
-                <span className="text-outline uppercase">Active Session ID</span>
+                <span className="text-outline uppercase">Идэвхтэй ID</span>
                 <span className="text-on-surface bg-surface-container-high/50 p-2 rounded-lg">{user.id}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-t border-outline-variant/10">
-                <span className="text-outline uppercase">Linked Deployments</span>
+                <span className="text-outline uppercase">Таны үйлчилгээнүүд</span>
                 <span className="text-secondary font-bold text-sm">{myProducts.length}</span>
               </div>
             </div>
           </div>
 
           <div className="glass-card rounded-3xl p-8 border-outline-variant/10">
-            <h3 className="text-label-md text-primary mb-6">Security Check</h3>
+            <h3 className="text-label-md text-primary mb-6">Аюулгүй байдал</h3>
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-sm font-medium text-outline-variant">
-                <AlertCircle className="w-5 h-5 text-yellow-500/50" /> Two-Factor (WIP)
+                <AlertCircle className="w-5 h-5 text-yellow-500/50" /> 2 алхамт баталгаажилт (WIP)
               </div>
               <div className="flex items-center gap-3 text-sm font-medium text-outline-variant">
-                <AlertCircle className="w-5 h-5 text-yellow-500/50" /> Email Verification (WIP)
+                <AlertCircle className="w-5 h-5 text-yellow-500/50" /> И-мэйл баталгаажилт (WIP)
               </div>
               <div className="text-[10px] text-yellow-500/70 uppercase tracking-widest mt-4">
-                * Pending Next Milestone
+                * Хөгжүүлэгдэж байна
               </div>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function Profile() {
           {/* Bio */}
           {user.bio && (
             <section className="space-y-6">
-              <h3 className="text-headline-md text-on-surface">Bio</h3>
+              <h3 className="text-headline-md text-on-surface">Танилцуулга</h3>
               <div className="glass-card rounded-3xl p-10 text-lg text-on-surface-variant leading-relaxed italic border-outline-variant/10">
                 "{user.bio}"
               </div>
@@ -233,13 +233,13 @@ export default function Profile() {
           {isOwnProfile && (
             <section className="space-y-6">
               <div className="flex justify-between items-center">
-                <h3 className="text-headline-md text-on-surface">Active Deployments</h3>
-                <Link to="/seller/add" className="text-sm font-bold text-primary hover:underline transition-all active:scale-95">+ New Entry</Link>
+                <h3 className="text-headline-md text-on-surface">Идэвхтэй үйлчилгээнүүд</h3>
+                <Link to="/seller/add" className="text-sm font-bold text-primary hover:underline transition-all active:scale-95">+ Шинэ үйлчилгээ</Link>
               </div>
               
               {myProducts.length === 0 ? (
                 <div className="glass-card rounded-2xl p-8 text-center text-on-surface-variant text-sm border-dashed border-2 border-outline-variant/10">
-                  You haven't deployed any services or gear yet. <Link to="/seller/add" className="text-primary hover:underline font-bold">Deploy your first service</Link> to start earning.
+                  Та одоогоор үйлчилгээ нэмээгүй байна. <Link to="/seller/add" className="text-primary hover:underline font-bold">Эхний үйлчилгээгээ нэмэх</Link>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -270,7 +270,7 @@ export default function Profile() {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-lg font-display font-bold text-secondary">₮{(prod.tiers?.[0]?.price ?? 0).toLocaleString()}</span>
-                        <span className="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View Live</span>
+                        <span className="text-xs font-bold text-primary hover:underline uppercase tracking-widest">Үзэх</span>
                       </div>
                     </div>
                   ))}
@@ -283,15 +283,15 @@ export default function Profile() {
 
           <section className="space-y-6">
             <div className="flex justify-between items-center">
-              <h3 className="text-headline-md text-on-surface">Recent Orders</h3>
-              <button onClick={() => navigate('/orders')} className="text-sm font-bold text-primary hover:underline transition-all active:scale-95">View All</button>
+              <h3 className="text-headline-md text-on-surface">Сүүлийн захиалгууд</h3>
+              <button onClick={() => navigate('/orders')} className="text-sm font-bold text-primary hover:underline transition-all active:scale-95">Бүгдийг үзэх</button>
 
             </div>
             
             <div className="space-y-4">
               {userOrders.length === 0 ? (
                 <div className="glass-card rounded-2xl p-8 text-center text-on-surface-variant text-sm">
-                  No orders yet. <a href="/services" className="text-primary hover:underline">Browse services</a> to get started.
+                  Захиалга байхгүй байна. <a href="/services" className="text-primary hover:underline">Үйлчилгээнүүд үзэх</a>.
                 </div>
               ) : (
                 userOrders.slice(0, 5).map((order) => (
@@ -305,17 +305,17 @@ export default function Profile() {
                         <ShoppingBag className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-on-surface mb-1">{order.product_title ?? 'Service'}</h4>
+                        <h4 className="font-bold text-on-surface mb-1">{order.product_title ?? 'Үйлчилгээ'}</h4>
                         <div className="flex items-center gap-3 text-xs text-on-surface-variant">
                           <span className="font-bold uppercase tracking-widest text-primary">{order.status}</span>
-                          <span>{order.tier} Tier</span>
+                          <span>{order.tier}</span>
                           <span>{new Date(order.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xl font-display font-bold text-secondary">₮{order.total.toLocaleString()}</div>
-                      <span className="text-xs font-bold text-primary hover:underline uppercase tracking-widest mt-1">Details</span>
+                      <span className="text-xs font-bold text-primary hover:underline uppercase tracking-widest mt-1">Дэлгэрэнгүй</span>
                     </div>
                   </div>
                 ))

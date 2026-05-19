@@ -59,7 +59,7 @@ export default function Checkout() {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-        <p className="text-on-surface-variant font-black uppercase tracking-[0.2em] text-xs">Preparing Secure Transaction...</p>
+        <p className="text-on-surface-variant font-black uppercase tracking-[0.2em] text-xs">Гүйлгээний хуудсыг бэлтгэж байна...</p>
       </div>
     );
   }
@@ -87,10 +87,10 @@ export default function Checkout() {
   };
 
   const methods = [
-    { id: 'card', label: 'Bank Card', icon: CreditCard },
-    { id: 'qpay', label: 'QPay / Bank', icon: QrCode },
+    { id: 'card', label: 'Банкны карт', icon: CreditCard },
+    { id: 'qpay', label: 'QPay / Банк', icon: QrCode },
     { id: 'socialpay', label: 'SocialPay', icon: Smartphone },
-    { id: 'wallet', label: 'Gamer Wallet', icon: Wallet },
+    { id: 'wallet', label: 'Хэтэвч', icon: Wallet },
   ] as const;
 
   return (
@@ -100,11 +100,11 @@ export default function Checkout() {
           <Link to={`/services/${productId}`} className="p-3 rounded-full hover:bg-surface-container-high transition-colors">
             <ArrowRight className="w-6 h-6 rotate-180" />
           </Link>
-          <h1 className="text-headline-xl text-on-surface font-display">{isEscrow ? 'Middleman Escrow Checkout' : 'Secure Checkout'}</h1>
+          <h1 className="text-headline-xl text-on-surface font-display">{isEscrow ? 'Баталгаат Дундын Данс' : 'Төлбөр Төлөх'}</h1>
         </div>
         {isEscrow && (
           <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-6 py-3 rounded-2xl text-yellow-400 text-xs font-black uppercase tracking-widest animate-pulse w-fit">
-            <ShieldCheck className="w-4 h-4" /> Middleman Escrow Protection Active
+            <ShieldCheck className="w-4 h-4" /> Дундын Дансны Баталгаа Идэвхтэй
           </div>
         )}
       </div>
@@ -112,7 +112,7 @@ export default function Checkout() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-8 space-y-12">
           <section className="space-y-6">
-            <h2 className="text-label-md text-primary uppercase tracking-[0.2em] font-black ml-1">Payment Method</h2>
+            <h2 className="text-label-md text-primary uppercase tracking-[0.2em] font-black ml-1">Төлбөрийн хэрэгсэл</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {methods.map((method) => (
                 <button key={method.id} onClick={() => setPaymentMethod(method.id)}
@@ -134,23 +134,23 @@ export default function Checkout() {
                   <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6 flex items-center justify-between gap-4 mb-4">
                     <div className="flex items-center gap-3 text-primary">
                       <ShieldCheck className="w-5 h-5" />
-                      <span className="text-xs font-black uppercase tracking-widest">Sandbox Active</span>
+                      <span className="text-xs font-black uppercase tracking-widest">Тест горим идэвхтэй</span>
                     </div>
-                    <span className="text-[10px] font-bold text-primary/60 uppercase italic tracking-tighter">Demo transaction for testing</span>
+                    <span className="text-[10px] font-bold text-primary/60 uppercase italic tracking-tighter">Туршилтын гүйлгээ</span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-label-md text-on-surface-variant ml-1">Cardholder Name</label>
+                      <label className="text-label-md text-on-surface-variant ml-1">Карт эзэмшигчийн нэр</label>
                       <input type="text" placeholder="TEST USER" className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-xl py-4 px-6 text-sm focus:border-primary outline-none transition-all font-display font-medium tracking-wide uppercase" />
                     </div>
                     <div className="space-y-3">
-                      <label className="text-label-md text-on-surface-variant ml-1">Email for Receipt</label>
+                      <label className="text-label-md text-on-surface-variant ml-1">И-мэйл хаяг</label>
                       <input type="email" value={user?.email || ''} readOnly className="w-full bg-surface-container-high/30 border border-outline-variant/10 rounded-xl py-4 px-6 text-sm text-outline cursor-not-allowed" />
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <label className="text-label-md text-on-surface-variant ml-1">Card Identification</label>
+                    <label className="text-label-md text-on-surface-variant ml-1">Картын дугаар</label>
                     <div className="relative">
                       <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-outline" />
                       <input type="text" placeholder="4242 4242 4242 4242" className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-xl py-4 pl-14 pr-6 text-sm focus:border-primary outline-none transition-all font-mono" />
@@ -158,11 +158,11 @@ export default function Checkout() {
                   </div>
                   <div className="grid grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-label-md text-on-surface-variant ml-1">Expiration</label>
+                      <label className="text-label-md text-on-surface-variant ml-1">Хүчинтэй хугацаа</label>
                       <input type="text" placeholder="12/28" className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-xl py-4 px-6 text-sm focus:border-primary outline-none transition-all font-mono" />
                     </div>
                     <div className="space-y-3">
-                      <label className="text-label-md text-on-surface-variant ml-1">CVC Code</label>
+                      <label className="text-label-md text-on-surface-variant ml-1">CVC код</label>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
                         <input type="text" placeholder="000" className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-xl py-4 pl-12 pr-6 text-sm focus:border-primary outline-none transition-all font-mono" />
@@ -170,7 +170,7 @@ export default function Checkout() {
                     </div>
                   </div>
                   <button type="submit" disabled={isProcessing} className="w-full bg-primary text-on-primary font-bold text-sm uppercase tracking-[0.2em] py-6 rounded-2xl hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-4 cursor-pointer">
-                    {isProcessing ? <div className="w-6 h-6 border-4 border-on-primary/20 border-t-on-primary rounded-full animate-spin" /> : <>Complete Transaction <ArrowRight className="w-5 h-5" /></>}
+                    {isProcessing ? <div className="w-6 h-6 border-4 border-on-primary/20 border-t-on-primary rounded-full animate-spin" /> : <>Төлбөр төлөх <ArrowRight className="w-5 h-5" /></>}
                   </button>
                 </motion.form>
               )}
@@ -182,11 +182,11 @@ export default function Checkout() {
                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ZEN_GAMER_PAYMENT_${product.id}_${totalWithFee}`} className="w-64 h-64 relative z-10" alt="Payment QR" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-xl font-display font-bold text-on-surface">Scan to Pay with {paymentMethod === 'qpay' ? 'QPay' : 'SocialPay'}</h3>
-                    <p className="text-on-surface-variant max-w-xs mx-auto">Open your bank application and scan the dynamic QR code for ₮{totalWithFee.toLocaleString()}.</p>
+                    <h3 className="text-xl font-display font-bold text-on-surface">Дараах апп-аар уншуулна уу: {paymentMethod === 'qpay' ? 'QPay' : 'SocialPay'}</h3>
+                    <p className="text-on-surface-variant max-w-xs mx-auto">Банкны апп-аа нээгээд QR кодыг уншуулна уу. Төлөх дүн: ₮{totalWithFee.toLocaleString()}.</p>
                   </div>
                   <button onClick={() => handlePay()} disabled={isProcessing} className="bg-primary text-on-primary px-12 py-4 rounded-xl font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all cursor-pointer">
-                    {isProcessing ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "Verify Payment"}
+                    {isProcessing ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "Төлбөр шалгах"}
                   </button>
                 </motion.div>
               )}
@@ -199,7 +199,7 @@ export default function Checkout() {
                         <Wallet className="w-8 h-8" />
                       </div>
                       <div>
-                        <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant block mb-1">Available Balance</span>
+                        <span className="text-xs font-black uppercase tracking-widest text-on-surface-variant block mb-1">Үлдэгдэл</span>
                         <span className="text-4xl font-display font-bold text-secondary">₮{(user?.balance ?? 0).toLocaleString()}</span>
                       </div>
                     </div>
@@ -208,11 +208,11 @@ export default function Checkout() {
                   { (user?.balance ?? 0) < totalWithFee ? (
                     <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-400 text-sm font-medium flex items-center gap-4">
                       <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                      Insufficient funds. Your wallet balance (₮{(user?.balance ?? 0).toLocaleString()}) is lower than the required ₮{totalWithFee.toLocaleString()}.
+                      Хүрэлцэхгүй байна. Таны хэтэвчийн үлдэгдэл (₮{(user?.balance ?? 0).toLocaleString()}) төлбөрийн дүнгээс (₮{totalWithFee.toLocaleString()}) бага байна.
                     </div>
                   ) : (
                     <button onClick={() => handlePay()} disabled={isProcessing} className="w-full bg-secondary text-on-secondary font-bold text-sm uppercase tracking-[0.2em] py-6 rounded-2xl hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-secondary/20 flex items-center justify-center gap-4 cursor-pointer">
-                      {isProcessing ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Pay with Balance <ArrowRight className="w-5 h-5" /></>}
+                      {isProcessing ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Үлдэгдлээр төлөх <ArrowRight className="w-5 h-5" /></>}
                     </button>
                   )}
                 </motion.div>
@@ -227,7 +227,7 @@ export default function Checkout() {
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <ShieldCheck className="w-12 h-12" />
               </div>
-              <h3 className="text-label-md text-primary uppercase tracking-[0.2em] font-black mb-8">Order Narrative</h3>
+              <h3 className="text-label-md text-primary uppercase tracking-[0.2em] font-black mb-8">Захиалгын мэдээлэл</h3>
               <div className="space-y-6 mb-10 pb-10 border-b border-outline-variant/10">
                 <div className="flex gap-5">
                   <div className="w-20 h-20 rounded-2xl bg-surface-container-high overflow-hidden border border-outline-variant/10 flex-shrink-0">
@@ -237,20 +237,20 @@ export default function Checkout() {
                     <span className="text-[10px] font-black uppercase tracking-widest text-primary block mb-1">{product.category}</span>
                     <h4 className="text-lg font-display font-bold text-on-surface leading-tight mb-1">{product.title}</h4>
                     <span className="text-xs font-black text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded border border-outline-variant/10 uppercase tracking-tighter">
-                      {selectedTier.name} TIER
+                      {selectedTier.name}
                     </span>
                   </div>
                 </div>
               </div>
               <div className="space-y-4">
                 <div className="flex justify-between text-sm font-medium text-on-surface-variant">
-                  <span>Base Valuation</span><span>₮{displayPrice.toLocaleString()}</span>
+                  <span>Үндсэн үнэ</span><span>₮{displayPrice.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm font-medium text-on-surface-variant">
-                  <span>Escrow & Gas Fee (2.5%)</span><span>₮{Math.round(displayPrice * 0.025).toLocaleString()}</span>
+                  <span>Шимтгэл (2.5%)</span><span>₮{Math.round(displayPrice * 0.025).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-2xl font-display font-bold text-on-surface pt-6 border-t border-outline-variant/10 mt-6">
-                  <span>Total Payload</span>
+                  <span>Нийт төлөх</span>
                   <span className="text-secondary">₮{totalWithFee.toLocaleString()}</span>
                 </div>
               </div>
@@ -259,10 +259,10 @@ export default function Checkout() {
             <div className="p-8 rounded-[32px] bg-secondary/5 border border-secondary/20">
               <div className="flex items-center gap-3 mb-4">
                 <Lock className="w-5 h-5 text-secondary" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-secondary">Zero-Knowledge Escrow</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-secondary">Дундын дансны баталгаа</span>
               </div>
               <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
-                Your credits are locked in a digital vault and only released upon successful delivery verification. 100% money-back guarantee.
+                Таны мөнгө үйлчилгээ бүрэн дуусах хүртэл дундын дансанд хадгалагдана. 100% мөнгөө буцааж авах баталгаатай.
               </p>
             </div>
           </div>

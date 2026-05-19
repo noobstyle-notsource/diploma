@@ -48,9 +48,9 @@ export default function Products() {
   })();
 
   const categories = [
-    { id: 'All', label: 'All Products' },
-    { id: 'Gear', label: 'Elite Gear' },
-    { id: 'Supplements', label: 'Supplements' },
+    { id: 'All', label: 'Бүх бүтээгдэхүүн' },
+    { id: 'Gear', label: 'Тоног төхөөрөмж' },
+    { id: 'Supplements', label: 'Нэмэлт бүтээгдэхүүн' },
   ];
 
   const filtered = allProducts.filter(p => {
@@ -64,9 +64,9 @@ export default function Products() {
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">
       <section className="mb-16">
-        <h1 className="text-headline-xl text-on-surface mb-4 font-display">Zen Products</h1>
+        <h1 className="text-headline-xl text-on-surface mb-4 font-display">Бүтээгдэхүүнүүд</h1>
         <p className="text-on-surface-variant text-lg max-w-2xl leading-relaxed font-medium">
-          High-performance gear and neural supplements engineered for the competitive edge.
+          Цахим спортын өндөр үзүүлэлттэй техник хэрэгсэл болон нэмэлт бүтээгдэхүүнүүд.
         </p>
       </section>
 
@@ -75,7 +75,7 @@ export default function Products() {
           <div className="glass-card rounded-[32px] p-8 sticky top-28 shadow-2xl border-outline-variant/10">
             <div className="flex flex-col gap-12">
               <div>
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-8 ml-1">Product Type</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-8 ml-1">Бүтээгдэхүүний төрөл</h3>
                 <div className="flex flex-col gap-3">
                   {categories.map(cat => (
                     <button key={cat.id} onClick={() => setSelectedCategory(cat.id)}
@@ -91,21 +91,21 @@ export default function Products() {
               </div>
 
               <div>
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-8 ml-1">Price Range</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-8 ml-1">Үнийн хязгаар</h3>
                 <div className="px-1">
                   <input type="range" min="0" max="5000000" step="50000" value={priceRange}
                     onChange={e => setPriceRange(Number(e.target.value))}
                     className="w-full h-1.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-primary" />
                   <div className="flex justify-between mt-6 text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
-                    <span>Min ₮0</span>
-                    <span className="text-primary">₮{priceRange.toLocaleString()} Max</span>
+                    <span>Доод ₮0</span>
+                    <span className="text-primary">₮{priceRange.toLocaleString()} Дээд</span>
                   </div>
                 </div>
               </div>
 
               <button onClick={() => { setSelectedCategory('All'); setPriceRange(5000000); setSearchQuery(''); }}
                 className="w-full flex items-center justify-center gap-3 py-5 bg-surface-container-high/50 border border-outline-variant/10 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface rounded-2xl hover:bg-surface-variant transition-all hover:scale-[1.02] active:scale-[0.98]">
-                <Filter className="w-3.5 h-3.5" /> Reset Filters
+                <Filter className="w-3.5 h-3.5" /> Шүүлтүүр цэвэрлэх
               </button>
             </div>
           </div>
@@ -115,14 +115,14 @@ export default function Products() {
           <div className="mb-12 flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="relative w-full md:max-w-md group">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-outline group-focus-within:text-primary transition-colors" />
-              <input type="text" placeholder="Search products..."
+              <input type="text" placeholder="Бүтээгдэхүүн хайх..."
                 value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                 className="w-full bg-surface-container-low/30 border border-outline-variant/10 rounded-[28px] pl-16 pr-6 py-5 text-sm focus:border-primary/50 outline-none transition-all shadow-inner backdrop-blur-md" />
             </div>
             <div className="flex items-center gap-3 px-6 py-3 rounded-2xl glass-card border-primary/20">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(129,212,220,1)]" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                {loading ? 'Loading...' : `${filtered.length} Products Found`}
+                {loading ? 'Уншиж байна...' : `${filtered.length} Бүтээгдэхүүн олдлоо`}
               </span>
             </div>
           </div>
