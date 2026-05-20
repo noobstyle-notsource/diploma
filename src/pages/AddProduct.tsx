@@ -63,6 +63,7 @@ export default function AddProduct() {
         eliteName: t2.name,
         elitePrice: parseFloat(t2.price) || 0,
         perUnit: priceUnit || (isProductCat ? 'Fixed Price' : '/session'),
+        images: []
       } as any);
       setSubmittedData({ title, category, wearCondition, tiers: [...tiers] });
       setSuccess(true);
