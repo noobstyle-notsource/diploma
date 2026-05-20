@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  Settings, ShoppingBag, ShieldCheck, Clock, CreditCard, LogOut, Edit, Mail, Trophy, AlertCircle, Calendar, Trash2
+  Settings, ShoppingBag, ShieldCheck, Clock, CreditCard, LogOut, Edit, Mail, Trophy, AlertCircle, Calendar, Trash2, Wallet
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'motion/react';
@@ -155,6 +155,12 @@ export default function Profile() {
               
               {isOwnProfile && (
                 <>
+                  <button onClick={() => navigate('/wallet')} className="w-full flex items-center gap-3 p-4 hover:bg-surface-container-high/50 text-on-surface-variant hover:text-on-surface rounded-2xl transition-all group">
+                    <Wallet className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                    <span className="text-sm font-bold text-left">Миний Хэтэвч</span>
+                    <span className="ml-auto text-xs font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded">₮{(user?.balance ?? 0).toLocaleString()}</span>
+                  </button>
+
                   <button onClick={() => navigate('/settings')} className="w-full flex items-center gap-3 p-4 hover:bg-surface-container-high/50 text-on-surface-variant hover:text-on-surface rounded-2xl transition-all group">
                     <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform" />
                     <span className="text-sm font-bold text-left">Бүртгэлийн тохиргоо</span>

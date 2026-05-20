@@ -240,12 +240,36 @@ export interface EscrowTrade {
 }
 
 export const escrow = {
-  create: (productId: string, tier = 'PRO') => request<{ success: boolean; tradeId: string }>('POST', '/escrow/create', { productId, tier }),
+  create: (productId: string, tier = 'PRO', paymentMethod = 'card') => request<{ success: boolean; tradeId: string }>('POST', '/escrow/create', { productId, tier, paymentMethod }),
   submitCreds: (id: string, credentials: string) => request<{ success: boolean }>('POST', `/escrow/${id}/submit-creds`, { credentials }),
   list: () => request<EscrowTrade[]>('GET', '/escrow/list'),
   verify: (id: string) => request<{ success: boolean }>('POST', `/escrow/${id}/verify`),
   cancel: (id: string) => request<{ success: boolean }>('POST', `/escrow/${id}/cancel`),
 };
+
+// ── Withdrawals ───────────────────────────────────────────────
+export interface Withdrawal {
+  id: string;
+  user_id: string;
+  amount: number;
+  bank_name: string;
+  account_number: string;
+  account_holder: string;
+  status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
+  created_at: string;
+  user_name?: string;
+  user_email?: string;
+}
+
+export const withdrawals = {
+  create: (amount: number, bankName: string, accountNumber: string, accountHolder: string) =>
+    request<{ success: boolean; id: string }>('POST', '/withdrawals/create', { amount, bankName, accountNumber, accountHolder }),
+  mine: () => request<Withdrawal[]>('GET', '/withdrawals/mine'),
+  list: () => request<Withdrawal[]>('GET', '/withdrawals/list'),
+  approve: (id: string) => request<{ success: boolean }>('POST', `/withdrawals/${id}/approve`),
+  reject: (id: string) => request<{ success: boolean }>('POST', `/withdrawals/${id}/reject`),
+};
+
 
 // ── Health ────────────────────────────────────────────────────
 export const health = () => request<{ status: string; db: string }>('GET', '/health');

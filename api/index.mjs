@@ -43,6 +43,7 @@ async function initDb() {
   await sql`CREATE TABLE IF NOT EXISTS orders (id TEXT PRIMARY KEY, buyer_id TEXT NOT NULL REFERENCES users(id), product_id TEXT NOT NULL REFERENCES products(id), tier TEXT DEFAULT 'PRO', status TEXT DEFAULT 'PENDING', total REAL DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS notifications (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), type TEXT NOT NULL, content TEXT NOT NULL, read BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS escrow_trades (id TEXT PRIMARY KEY, buyer_id TEXT NOT NULL REFERENCES users(id), seller_id TEXT NOT NULL REFERENCES users(id), product_id TEXT NOT NULL REFERENCES products(id), amount REAL DEFAULT 0, account_credentials TEXT DEFAULT '', status TEXT DEFAULT 'PENDING_SELLER_CREDS', middleman_id TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`;
+  await sql`CREATE TABLE IF NOT EXISTS withdrawals (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), amount REAL NOT NULL, bank_name TEXT NOT NULL, account_number TEXT NOT NULL, account_holder TEXT NOT NULL, status TEXT DEFAULT 'PENDING', created_at TIMESTAMPTZ DEFAULT NOW())`;
   try { await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS wear_condition TEXT DEFAULT 'Brand New'`; } catch {}
 }
 
@@ -271,18 +272,28 @@ app.post('/api/admin/users/:id/set-rank', adminOrOwnerAuth, async (req, res) => 
 
 // --- ESCROW MIDDLEMAN TRADE ROUTES ---
 app.post('/api/escrow/create', auth, async (req, res) => {
-  const { productId, tier } = req.body;
+  const { productId, tier, paymentMethod } = req.body;
   const product = await sql`SELECT * FROM products WHERE id = ${productId}`;
   if (!product[0]) return res.status(404).json({ error: 'Product not found' });
   
   const amount = Number(tier === 'BASIC' ? product[0].basic_price : tier === 'ELITE' ? product[0].elite_price : product[0].pro_price || 0);
   
+  if (paymentMethod === 'wallet') {
+    const userRows = await sql`SELECT balance FROM users WHERE id = ${req.user.id}`;
+    if ((userRows[0]?.balance ?? 0) < amount) {
+      return res.status(400).json({ error: 'Хэтэвчний үлдэгдэл хүрэлцэхгүй байна.' });
+    }
+    await sql`UPDATE users SET balance = balance - ${amount} WHERE id = ${req.user.id}`;
+  }
+  
   const tradeId = randomUUID();
-  await sql`UPDATE users SET balance = balance - ${amount} WHERE id = ${req.user.id}`;
   await sql`INSERT INTO escrow_trades (id, buyer_id, seller_id, product_id, amount, status) VALUES (${tradeId}, ${req.user.id}, ${product[0].user_id}, ${productId}, ${amount}, 'PENDING_SELLER_CREDS')`;
   
-  const notifId = randomUUID();
-  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${notifId}, ${product[0].user_id}, 'ESCROW', ${'A buyer has deposited ₮' + amount.toLocaleString() + ' in Middleman Escrow for ' + product[0].title + '. Please provide account credentials to the Middleman to proceed.'})`;
+  const n1 = randomUUID(), n2 = randomUUID();
+  // Seller notification
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n1}, ${product[0].user_id}, 'ESCROW', ${'🔒 Худалдан авагч ' + product[0].title + ' үйлчилгээний ₮' + amount.toLocaleString() + ' төлбөрийг дундын дансанд байршууллаа. Зуучлагчид олгох дансны мэдээллээ оруулж гүйлгээг үргэлжлүүлнэ үү.'})`;
+  // Buyer notification
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n2}, ${req.user.id}, 'ESCROW', ${'🔒 Таны ₮' + amount.toLocaleString() + ' төлбөр дундын дансанд амжилттай байршлаа. Худалдагч дансны мэдээллээ оруулсны дараа дундын зуучлагч гүйлгээг хянах болно.'})`;
   
   res.json({ success: true, tradeId });
 });
@@ -347,6 +358,64 @@ app.post('/api/escrow/:id/cancel', adminAuth, async (req, res) => {
   const n1 = randomUUID(), n2 = randomUUID();
   await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n1}, ${trade[0].buyer_id}, 'ESCROW', ${'❌ Дундын зуучлагч гүйлгээ #' + id.slice(0,8) + '-г цуцаллаа. ₮' + Number(trade[0].amount).toLocaleString() + ' таны үлдэгдэлд буцаагдлаа.'})`;
   await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n2}, ${trade[0].seller_id}, 'ESCROW', ${'❌ Дундын зуучлагч гүйлгээ #' + id.slice(0,8) + '-г цуцаллаа. Дансны мэдээлэл баталгаажаагүй тул гүйлгээ хаагдлаа.'})`;
+  
+  res.json({ success: true });
+});
+
+// --- WITHDRAWAL ROUTES ---
+app.post('/api/withdrawals/create', auth, async (req, res) => {
+  const { amount, bankName, accountNumber, accountHolder } = req.body;
+  const amt = Number(amount);
+  if (isNaN(amt) || amt <= 0) return res.status(400).json({ error: 'Зөв дүн оруулна уу.' });
+  
+  const userRows = await sql`SELECT balance FROM users WHERE id = ${req.user.id}`;
+  if ((userRows[0]?.balance ?? 0) < amt) {
+    return res.status(400).json({ error: 'Баланс хүрэлцэхгүй байна.' });
+  }
+  
+  const id = randomUUID();
+  await sql`UPDATE users SET balance = balance - ${amt} WHERE id = ${req.user.id}`;
+  await sql`INSERT INTO withdrawals (id, user_id, amount, bank_name, account_number, account_holder, status) VALUES (${id}, ${req.user.id}, ${amt}, ${bankName}, ${accountNumber}, ${accountHolder}, 'PENDING')`;
+  
+  const nId = randomUUID();
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${nId}, ${req.user.id}, 'SYSTEM', ${'💸 Таны ₮' + amt.toLocaleString() + ' татан авалтын хүсэлт амжилттай бүртгэгдлээ. Дундын зуучлагч хянаж байна.'})`;
+  
+  res.json({ success: true, id });
+});
+
+app.get('/api/withdrawals/mine', auth, async (req, res) => {
+  const rows = await sql`SELECT * FROM withdrawals WHERE user_id = ${req.user.id} ORDER BY created_at DESC`;
+  res.json(rows);
+});
+
+app.get('/api/withdrawals/list', adminAuth, async (req, res) => {
+  const rows = await sql`SELECT w.*, u.username as user_name, u.email as user_email FROM withdrawals w JOIN users u ON w.user_id = u.id ORDER BY w.created_at DESC`;
+  res.json(rows);
+});
+
+app.post('/api/withdrawals/:id/approve', adminAuth, async (req, res) => {
+  const { id } = req.params;
+  const w = await sql`SELECT * FROM withdrawals WHERE id = ${id}`;
+  if (!w[0] || w[0].status !== 'PENDING') return res.status(400).json({ error: 'Хүлээгдэж буй татан авалтын хүсэлт олдсонгүй.' });
+  
+  await sql`UPDATE withdrawals SET status = 'COMPLETED' WHERE id = ${id}`;
+  
+  const nId = randomUUID();
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${nId}, ${w[0].user_id}, 'SYSTEM', ${'✅ Таны ₮' + Number(w[0].amount).toLocaleString() + ' татан авалтын хүсэлт баталгаажиж, ' + w[0].bank_name + ' (' + w[0].account_number + ') данс руу тань шилжлээ.'})`;
+  
+  res.json({ success: true });
+});
+
+app.post('/api/withdrawals/:id/reject', adminAuth, async (req, res) => {
+  const { id } = req.params;
+  const w = await sql`SELECT * FROM withdrawals WHERE id = ${id}`;
+  if (!w[0] || w[0].status !== 'PENDING') return res.status(400).json({ error: 'Хүлээгдэж буй татан авалтын хүсэлт олдсонгүй.' });
+  
+  await sql`UPDATE withdrawals SET status = 'CANCELLED' WHERE id = ${id}`;
+  await sql`UPDATE users SET balance = balance + ${w[0].amount} WHERE id = ${w[0].user_id}`;
+  
+  const nId = randomUUID();
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${nId}, ${w[0].user_id}, 'SYSTEM', ${'❌ Таны ₮' + Number(w[0].amount).toLocaleString() + ' татан авалтын хүсэлтийг админ цуцаллаа. Шалтгаан: Мэдээлэл буруу эсвэл дутуу. Дүн таны баланс руу буцаж орлоо.'})`;
   
   res.json({ success: true });
 });

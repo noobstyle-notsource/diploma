@@ -7,14 +7,15 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'motion/react';
-import { admin, auth, escrow, type Order, type AuthUser, type EscrowTrade } from '../lib/api';
+import { admin, auth, escrow, withdrawals, type Order, type AuthUser, type EscrowTrade, type Withdrawal } from '../lib/api';
 
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users' | 'escrow'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'users' | 'escrow' | 'withdrawals'>('overview');
   const [stats, setStats] = useState<any>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [userList, setUserList] = useState<AuthUser[]>([]);
   const [escrowTrades, setEscrowTrades] = useState<EscrowTrade[]>([]);
+  const [withdrawList, setWithdrawList] = useState<Withdrawal[]>([]);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,18 +23,20 @@ export default function Admin() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [s, o, u, me, esc] = await Promise.all([
+      const [s, o, u, me, esc, w] = await Promise.all([
         admin.stats(),
         admin.orders(),
         admin.users(),
         auth.me().catch(() => null),
-        escrow.list().catch(() => [])
+        escrow.list().catch(() => []),
+        withdrawals.list().catch(() => [])
       ]);
       setStats(s);
       setOrders(o);
       setUserList(u);
       setCurrentUser(me);
       setEscrowTrades(esc);
+      setWithdrawList(w);
       setError(null);
     } catch (err: any) {
       setError(err.message === 'Administrative clearance required' || err.message === 'Admin access restricted' ? 'ACCESS_DENIED' : err.message);
@@ -67,6 +70,24 @@ export default function Admin() {
       setEscrowTrades(prev => prev.map(t => t.id === id ? { ...t, status: 'CANCELLED' } : t));
       alert('❌ Данс солилцоо цуцлагдаж, төлбөр худалдан авагч руу буцлаа!');
     } catch (err: any) { alert(err.message || 'Failed to cancel trade'); }
+  };
+
+  const handleApproveWithdrawal = async (id: string) => {
+    if (!window.confirm('Та энэ татан авалтын хүсэлтийг зөвшөөрч, шилжүүлэг хийсэн гэдгээ баталгаажуулж байна уу?')) return;
+    try {
+      await withdrawals.approve(id);
+      setWithdrawList(prev => prev.map(w => w.id === id ? { ...w, status: 'COMPLETED' } : w));
+      alert('✅ Татан авалт амжилттай баталгаажлаа!');
+    } catch (err: any) { alert(err.message || 'Failed to approve withdrawal'); }
+  };
+
+  const handleRejectWithdrawal = async (id: string) => {
+    if (!window.confirm('Та энэ татан авалтын хүсэлтийг цуцлахдаа итгэлтэй байна уу? Баланс нь буцаж орох болно.')) return;
+    try {
+      await withdrawals.reject(id);
+      setWithdrawList(prev => prev.map(w => w.id === id ? { ...w, status: 'CANCELLED' } : w));
+      alert('❌ Татан авалт цуцлагдаж, баланс нь буцаж орлоо!');
+    } catch (err: any) { alert(err.message || 'Failed to reject withdrawal'); }
   };
 
   useEffect(() => {
@@ -127,7 +148,7 @@ export default function Admin() {
 
       {/* Admin Nav */}
       <div className="flex items-center gap-2 p-1.5 bg-surface-container-low border border-outline-variant/10 rounded-3xl mb-12 w-fit">
-        {(['overview', 'orders', 'users', 'escrow'] as const).map((tab) => (
+        {(['overview', 'orders', 'users', 'escrow', 'withdrawals'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -138,7 +159,7 @@ export default function Admin() {
                 : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
             )}
           >
-            {tab === 'overview' ? 'Тойм' : tab === 'orders' ? 'Захиалгууд' : tab === 'users' ? 'Хэрэглэгчид' : 'Данс солилцоо (Escrow)'}
+            {tab === 'overview' ? 'Тойм' : tab === 'orders' ? 'Захиалгууд' : tab === 'users' ? 'Хэрэглэгчид' : tab === 'escrow' ? 'Данс солилцоо (Escrow)' : 'Татан авалтууд'}
           </button>
         ))}
       </div>
@@ -464,6 +485,97 @@ export default function Admin() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {activeTab === 'withdrawals' && (
+        <div className="space-y-8">
+          <div className="glass-card rounded-[48px] border border-outline-variant/10 p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h3 className="text-xl font-display font-bold text-on-surface mb-2">Татан авалтын хүсэлтүүд</h3>
+              <p className="text-xs text-on-surface-variant max-w-xl leading-relaxed">
+                Хэрэглэгчдийн балансаас мөнгө татах хүсэлтүүд энд харагдана. Та банкны шилжүүлгийг хийж дууссаны дараа <strong>Шилжүүлсэн</strong> товчийг дарж хүсэлтийг COMPLETED болгоно. Хэрэв цуцалбал мөнгийг хэрэглэгчийн баланс руу буцаах болно.
+              </p>
+            </div>
+          </div>
+
+          <div className="glass-surface rounded-[48px] border border-outline-variant/10 overflow-hidden shadow-2xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-surface-container-high/50 text-[10px] font-black uppercase tracking-[0.2em] text-outline">
+                    <th className="px-8 py-6">Хүсэлт ID</th>
+                    <th className="px-8 py-6">Хэрэглэгч (ID)</th>
+                    <th className="px-8 py-6">Банк</th>
+                    <th className="px-8 py-6">Данс</th>
+                    <th className="px-8 py-6">Дансны нэр</th>
+                    <th className="px-8 py-6">Дүн</th>
+                    <th className="px-8 py-6">Огноо</th>
+                    <th className="px-8 py-6">Төлөв</th>
+                    <th className="px-8 py-6 text-right">Үйлдэл</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/5">
+                  {withdrawList.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="px-8 py-16 text-center text-xs text-on-surface-variant">
+                        Татан авалтын хүсэлт одоогоор байхгүй байна.
+                      </td>
+                    </tr>
+                  ) : (
+                    withdrawList.map((withdraw) => {
+                      const user = userList.find(u => u.id === withdraw.user_id);
+                      return (
+                        <tr key={withdraw.id} className="hover:bg-surface-container-high/30 transition-colors group text-xs">
+                          <td className="px-8 py-6 font-mono text-primary font-bold">#{withdraw.id.slice(0, 8)}</td>
+                          <td className="px-8 py-6">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-on-surface">{user ? user.username : 'Тодорхойгүй'}</span>
+                              <span className="text-[10px] text-on-surface-variant font-mono">{withdraw.user_id.slice(0, 8)}...</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-on-surface font-medium">{withdraw.bank_name}</td>
+                          <td className="px-8 py-6 font-mono text-on-surface">{withdraw.account_number}</td>
+                          <td className="px-8 py-6 text-on-surface font-medium">{withdraw.account_holder}</td>
+                          <td className="px-8 py-6 font-display font-bold text-primary text-sm">₮{withdraw.amount.toLocaleString()}</td>
+                          <td className="px-8 py-6 text-on-surface-variant">{new Date(withdraw.created_at).toLocaleString()}</td>
+                          <td className="px-8 py-6">
+                            <span className={cn(
+                              "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
+                              withdraw.status === 'COMPLETED' ? "bg-green-500/10 text-green-400 border border-green-500/20" :
+                              withdraw.status === 'CANCELLED' ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                              "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 animate-pulse"
+                            )}>
+                              {withdraw.status === 'PENDING' ? 'Хүлээгдэж буй' : 
+                               withdraw.status === 'COMPLETED' ? 'Шилжүүлсэн' : 'Цуцлагдсан'}
+                            </span>
+                          </td>
+                          <td className="px-8 py-6 text-right">
+                            {withdraw.status === 'PENDING' && (
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={() => handleRejectWithdrawal(withdraw.id)}
+                                  className="px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                                >
+                                  Цуцлах
+                                </button>
+                                <button
+                                  onClick={() => handleApproveWithdrawal(withdraw.id)}
+                                  className="px-3 py-1.5 bg-green-500 text-black font-black rounded-xl text-[10px] uppercase tracking-widest shadow-lg shadow-green-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                                >
+                                  Шилжүүлсэн
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
     </div>

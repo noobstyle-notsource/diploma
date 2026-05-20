@@ -79,7 +79,7 @@ export default function Checkout() {
     setIsProcessing(true);
     try {
       if (isEscrow) {
-        await escrow.create(product.id, tierDbKey);
+        await escrow.create(product.id, tierDbKey, paymentMethod);
       } else {
         await ordersApi.create(product.id, tierDbKey);
       }

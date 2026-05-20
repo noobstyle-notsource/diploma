@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { MessageSquare, Search, User, PlusCircle, LogIn, X, ShieldCheck } from 'lucide-react';
+import { MessageSquare, Search, User, PlusCircle, LogIn, X, ShieldCheck, Wallet } from 'lucide-react';
 
 import { cn } from '../lib/utils';
 import { isLoggedIn, conversations } from '../lib/api';
@@ -100,6 +100,10 @@ export default function Navbar() {
                 )}
                 <Link to="/seller/add" className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.5)] transition-all text-xs font-black uppercase tracking-widest mr-2">
                   <PlusCircle className="w-4 h-4" /> Нийтлэх
+                </Link>
+
+                <Link to="/wallet" className="text-on-surface-variant hover:text-primary hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.5)] transition-all relative mr-1" title="Хэтэвч">
+                  <Wallet className="w-5 h-5" />
                 </Link>
 
                 <Link to="/messages" className="text-on-surface-variant hover:text-primary hover:drop-shadow-[0_0_8px_rgba(0,255,204,0.5)] transition-all relative">

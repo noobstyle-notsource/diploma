@@ -17,6 +17,7 @@ import Settings from './pages/Settings';
 import Orders from './pages/Orders';
 import Status from './pages/Status';
 import Admin from './pages/Admin';
+import WalletPage from './pages/Wallet';
 import { About, Privacy, Terms, Support } from './pages/Corporate';
 
 
@@ -25,6 +26,7 @@ function AnimatedRoutes() {
   
   return (
     <AnimatePresence mode="wait">
+      {/* @ts-ignore */}
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Home /></PageTransition>} />
         <Route path="/services" element={<PageTransition><Services /></PageTransition>} />
@@ -42,6 +44,7 @@ function AnimatedRoutes() {
         <Route path="/orders" element={<PageTransition><Orders /></PageTransition>} />
         <Route path="/status" element={<PageTransition><Status /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
+        <Route path="/wallet" element={<PageTransition><WalletPage /></PageTransition>} />
         <Route path="/about" element={<PageTransition><About /></PageTransition>} />
 
         <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />

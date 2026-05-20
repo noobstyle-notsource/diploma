@@ -3,7 +3,7 @@ import { Plus, Upload, Tag, DollarSign, Layers, CheckCircle, AlertCircle, Packag
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
-import { products, isLoggedIn } from '../lib/api';
+import { products, isLoggedIn, ai } from '../lib/api';
 
 const CATEGORIES = ['Coaching', 'Boosting', 'Rentals', 'Gear', 'Marketplace', 'Supplements'];
 
