@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Plus, Upload, Tag, DollarSign, Layers, CheckCircle, AlertCircle, Package } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Upload, Tag, DollarSign, Layers, CheckCircle, AlertCircle, Package, Sparkles, ArrowRight, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { products, isLoggedIn, ai } from '../lib/api';
 
@@ -23,6 +23,8 @@ export default function AddProduct() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(4);
+  const [submittedData, setSubmittedData] = useState<{ title: string; category: string; wearCondition: string; tiers: { name: string; price: string }[] } | null>(null);
 
   // If Gear or Supplements, force a single tier
   React.useEffect(() => {
@@ -43,21 +45,41 @@ export default function AddProduct() {
     e.preventDefault();
     if (!isLoggedIn()) { navigate('/login'); return; }
     setError(''); setLoading(true);
+    const isProductCat = ['Gear', 'Supplements'].includes(category);
     try {
+      // Backend expects flat fields, not a tiers array
+      const t0 = tiers[0] ?? { name: 'BASIC', price: '' };
+      const t1 = tiers[1] ?? { name: 'PRO', price: '' };
+      const t2 = tiers[2] ?? { name: 'ELITE', price: '' };
       await products.create({
         title,
         description,
         category,
-        wearCondition: category === 'Gear' ? wearCondition : 'Шинэ',
-        tiers: tiers.map(t => ({ name: t.name, price: parseFloat(t.price) || 0 })),
-        per_unit: priceUnit || (['Gear', 'Supplements'].includes(category) ? 'Fixed Price' : '/session'),
-      });
+        wearCondition: isProductCat ? wearCondition : 'Шинэ',
+        basicName: t0.name,
+        basicPrice: parseFloat(t0.price) || 0,
+        proName: t1.name,
+        proPrice: parseFloat(t1.price) || 0,
+        eliteName: t2.name,
+        elitePrice: parseFloat(t2.price) || 0,
+        perUnit: priceUnit || (isProductCat ? 'Fixed Price' : '/session'),
+      } as any);
+      setSubmittedData({ title, category, wearCondition, tiers: [...tiers] });
       setSuccess(true);
-      setTimeout(() => navigate('/services'), 1500);
+      setCountdown(4);
     } catch (e: any) {
       setError(e.message ?? 'Failed to create listing');
     } finally { setLoading(false); }
   };
+
+  const redirectPath = ['Gear', 'Supplements'].includes(category) ? '/products' : '/services';
+
+  useEffect(() => {
+    if (!success) return;
+    if (countdown <= 0) { navigate(redirectPath); return; }
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [success, countdown, navigate, redirectPath]);
 
   const isProductCategory = ['Gear', 'Supplements'].includes(category);
   const priceLabel = isProductCategory ? 'Үнэ' : 'Үнэлгээ';
@@ -80,6 +102,149 @@ export default function AddProduct() {
     newTiers[index][field] = value;
     setTiers(newTiers);
   };
+
+  const categoryEmoji: Record<string, string> = {
+    Coaching: '🎓', Boosting: '⚡', Rentals: '🎮', Gear: '🛒', Marketplace: '🏪', Supplements: '💊'
+  };
+
+  if (success && submittedData) {
+    const isProduct = ['Gear', 'Supplements'].includes(submittedData.category);
+    const totalPrice = submittedData.tiers.reduce((acc, t) => acc + (parseFloat(t.price) || 0), 0);
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
+        {/* Animated dark backdrop */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 bg-black/90"
+          style={{ backdropFilter: 'blur(24px)' }}
+        />
+        {/* Scanline overlay */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,0.03) 2px, rgba(0,255,136,0.03) 4px)'
+        }} />
+        {/* Neon glow corner accents */}
+        <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-green-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute top-1/2 left-0 w-48 h-48 rounded-full bg-cyan-500/5 blur-3xl" />
+
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0, y: 40 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 22, delay: 0.1 }}
+          className="relative z-10 w-full max-w-lg mx-4"
+        >
+          <div className="rounded-3xl border border-green-500/30 bg-black/60 p-10 shadow-2xl"
+            style={{ boxShadow: '0 0 80px rgba(0,255,136,0.15), 0 0 160px rgba(0,255,136,0.05), inset 0 1px 0 rgba(255,255,255,0.05)' }}>
+
+            {/* Top accent bar */}
+            <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-green-400 to-transparent" />
+
+            {/* Animated check icon */}
+            <div className="flex justify-center mb-8">
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.3 }}
+                className="relative"
+              >
+                <div className="w-24 h-24 rounded-full flex items-center justify-center"
+                  style={{ background: 'radial-gradient(circle, rgba(0,255,136,0.2) 0%, rgba(0,255,136,0.05) 70%)', boxShadow: '0 0 40px rgba(0,255,136,0.4)' }}>
+                  <CheckCircle className="w-12 h-12 text-green-400" strokeWidth={1.5} />
+                </div>
+                {/* Pulse rings */}
+                <motion.div
+                  animate={{ scale: [1, 1.8], opacity: [0.6, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
+                  className="absolute inset-0 rounded-full border-2 border-green-400/60"
+                />
+                <motion.div
+                  animate={{ scale: [1, 2.2], opacity: [0.4, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut', delay: 0.3 }}
+                  className="absolute inset-0 rounded-full border border-green-400/40"
+                />
+              </motion.div>
+            </div>
+
+            {/* Title */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-center mb-8"
+            >
+              <p className="text-xs font-black uppercase tracking-[0.4em] text-green-400 mb-3">✦ АМЖИЛТТАЙ ✦</p>
+              <h2 className="text-3xl font-black text-white mb-2" style={{ textShadow: '0 0 30px rgba(0,255,136,0.3)' }}>
+                🎉 НИЙТЛЭГДЛЭЭ!
+              </h2>
+              <p className="text-green-300/60 text-sm font-medium">Таны зар манай платформд амжилттай нэмэгдлээ</p>
+            </motion.div>
+
+            {/* Product details card */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65 }}
+              className="rounded-2xl border border-white/5 bg-white/[0.03] p-6 mb-8 space-y-4"
+            >
+              <div className="flex items-start gap-4">
+                <span className="text-3xl flex-shrink-0">{categoryEmoji[submittedData.category] || '✨'}</span>
+                <div className="min-w-0">
+                  <h3 className="text-white font-black text-lg leading-tight truncate">{submittedData.title || 'Гарчиггүй'}</h3>
+                  <p className="text-green-400/70 text-xs font-bold uppercase tracking-widest mt-1">{submittedData.category}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-white/5 pt-4 grid grid-cols-2 gap-4">
+                {isProduct && (
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">Төлөв</p>
+                    <p className="text-white/80 text-sm font-bold">{submittedData.wearCondition}</p>
+                  </div>
+                )}
+                <div className={isProduct ? '' : 'col-span-2'}>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">
+                    {isProduct ? 'Үнэ' : 'Багцын тоо'}
+                  </p>
+                  <p className="text-white/80 text-sm font-bold">
+                    {isProduct
+                      ? `₮${(totalPrice).toLocaleString()}`
+                      : `${submittedData.tiers.length} багц`
+                    }
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Countdown */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2 text-white/40 text-xs font-medium">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                >
+                  <Zap className="w-3.5 h-3.5 text-green-400" />
+                </motion.div>
+                {countdown}с-д автоматаар шилжинэ
+              </div>
+              <button
+                onClick={() => navigate(redirectPath)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green-500/20 border border-green-500/30 text-green-300 text-sm font-bold hover:bg-green-500/30 transition-all"
+                style={{ boxShadow: '0 0 20px rgba(0,255,136,0.1)' }}
+              >
+                Шилжих <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">

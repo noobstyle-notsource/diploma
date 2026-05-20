@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import ServiceCard from '../components/ServiceCard';
-import { SERVICES } from '../constants';
 import { Service } from '../types';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -21,7 +20,7 @@ function toService(p: Product): Service {
   return {
     id: p.id, title: p.title, description: p.description,
     category: mapCategory(p.category) as any,
-    price: p.pro_price || p.basic_price || 0,
+    price: p.basic_price || p.pro_price || 0,
     priceUnit: p.per_unit ?? '', image: p.images?.[0] || '',
     verified: !!p.tag, featured: p.tag === 'FEATURED',
     trending: p.tag === 'HOT' || p.tag === 'TRENDING' || p.tag === 'NEW',
@@ -32,20 +31,15 @@ export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [priceRange, setPriceRange] = useState(5000000);
   const [searchQuery, setSearchQuery] = useState('');
-  const [dbProducts, setDbProducts] = useState<Service[]>([]);
+  const [allProducts, setAllProducts] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     productsApi.list().then(data => {
-      setDbProducts(data.filter(p => PRODUCT_CATEGORIES.includes(mapCategory(p.category))).map(toService));
+      setAllProducts(data.filter(p => PRODUCT_CATEGORIES.includes(mapCategory(p.category))).map(toService));
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
-
-  const staticProducts = SERVICES.filter(s => PRODUCT_CATEGORIES.includes(s.category));
-  const allProducts = (() => {
-    const seen = new Set(dbProducts.map(s => s.title));
-    return [...dbProducts, ...staticProducts.filter(s => !seen.has(s.title))];
-  })();
 
   const categories = [
     { id: 'All', label: 'Бүх бүтээгдэхүүн' },
@@ -141,9 +135,9 @@ export default function Products() {
 
           {filtered.length === 0 && !loading && (
             <div className="text-center py-20 text-on-surface-variant">
-              <p className="text-lg font-medium">No products match your filters.</p>
-              <button onClick={() => { setSelectedCategory('All'); setPriceRange(1000); setSearchQuery(''); }}
-                className="mt-4 text-primary font-bold hover:underline">Clear filters</button>
+              <p className="text-lg font-medium">Шүүлтүүрт тохирох бүтээгдэхүүн олдсонгүй.</p>
+              <button onClick={() => { setSelectedCategory('All'); setPriceRange(5000000); setSearchQuery(''); }}
+                className="mt-4 text-primary font-bold hover:underline">Шүүлтүүр цэвэрлэх</button>
             </div>
           )}
         </div>
