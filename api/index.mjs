@@ -324,11 +324,10 @@ app.post('/api/escrow/create', auth, async (req, res) => {
   const amount = Number(tier === 'BASIC' ? product[0].basic_price : tier === 'ELITE' ? product[0].elite_price : product[0].pro_price || 0);
   
   if (paymentMethod === 'wallet') {
-    const userRows = await sql`SELECT balance FROM users WHERE id = ${req.user.id}`;
-    if ((userRows[0]?.balance ?? 0) < amount) {
+    const res = await sql`UPDATE users SET balance = balance - ${amount} WHERE id = ${req.user.id} AND balance >= ${amount} RETURNING id`;
+    if (res.length === 0) {
       return res.status(400).json({ error: 'Хэтэвчний үлдэгдэл хүрэлцэхгүй байна.' });
     }
-    await sql`UPDATE users SET balance = balance - ${amount} WHERE id = ${req.user.id}`;
   }
   
   const tradeId = randomUUID();
@@ -413,13 +412,10 @@ app.post('/api/withdrawals/create', auth, async (req, res) => {
   const amt = Number(amount);
   if (isNaN(amt) || amt <= 0) return res.status(400).json({ error: 'Зөв дүн оруулна уу.' });
   
-  const userRows = await sql`SELECT balance FROM users WHERE id = ${req.user.id}`;
-  if ((userRows[0]?.balance ?? 0) < amt) {
-    return res.status(400).json({ error: 'Баланс хүрэлцэхгүй байна.' });
-  }
+  const resUpdate = await sql`UPDATE users SET balance = balance - ${amt} WHERE id = ${req.user.id} AND balance >= ${amt} RETURNING id`;
+  if (resUpdate.length === 0) return res.status(400).json({ error: 'Insufficient balance' });
   
   const id = randomUUID();
-  await sql`UPDATE users SET balance = balance - ${amt} WHERE id = ${req.user.id}`;
   await sql`INSERT INTO withdrawals (id, user_id, amount, bank_name, account_number, account_holder, status) VALUES (${id}, ${req.user.id}, ${amt}, ${bankName}, ${accountNumber}, ${accountHolder}, 'PENDING')`;
   
   const nId = randomUUID();

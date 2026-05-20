@@ -18,6 +18,7 @@ import Orders from './pages/Orders';
 import Status from './pages/Status';
 import Admin from './pages/Admin';
 import WalletPage from './pages/Wallet';
+import Notifications from './pages/Notifications';
 import { About, Privacy, Terms, Support } from './pages/Corporate';
 
 
@@ -45,6 +46,7 @@ function AnimatedRoutes() {
         <Route path="/status" element={<PageTransition><Status /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
         <Route path="/wallet" element={<PageTransition><WalletPage /></PageTransition>} />
+        <Route path="/notifications" element={<PageTransition><Notifications /></PageTransition>} />
         <Route path="/about" element={<PageTransition><About /></PageTransition>} />
 
         <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />

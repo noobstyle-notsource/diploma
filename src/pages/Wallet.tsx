@@ -2,15 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Wallet, ArrowRight, Building2, User, CreditCard, AlertCircle, 
+  Wallet, ArrowRight, Tag, Key, CheckCircle, Building2, User, CreditCard, AlertCircle, 
   Clock, CheckCircle2, XCircle, ArrowUpRight, ArrowDownLeft, ShieldCheck, Loader2
 } from 'lucide-react';
-import { auth, withdrawals, type AuthUser, type Withdrawal } from '../lib/api';
+import { auth, withdrawals, escrow, type AuthUser, type Withdrawal, type EscrowTrade } from '../lib/api';
+import { cn } from '../lib/utils';
+import { useSearchParams } from 'react-router-dom';
 
 export default function WalletPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [history, setHistory] = useState<Withdrawal[]>([]);
+  const [escrowTrades, setEscrowTrades] = useState<EscrowTrade[]>([]);
+  const [credsInput, setCredsInput] = useState<Record<string, string>>({});
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<'wallet' | 'escrow'>(searchParams.get('tab') === 'escrow' ? 'escrow' : 'wallet');
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -21,6 +27,16 @@ export default function WalletPage() {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'PENDING_SELLER_CREDS': return 'Ð¢Ó¨Ð›Ð‘Ó¨Ð  ÐžÐ Ð¡ÐžÐ - Ð¥Ð£Ð”ÐÐ›Ð”ÐÐ“Ð§Ð˜Ð™Ð“ Ð¥Ò®Ð›Ð­Ð­Ð– Ð‘Ð£Ð™';
+      case 'PENDING_MIDDLEMAN_VERIFICATION': return 'Ð—Ð£Ð£Ð§Ð›ÐÐ“Ð§ Ð¥Ð¯ÐÐÐ– Ð‘ÐÐ™ÐÐ';
+      case 'COMPLETED': return 'ÐÐœÐ–Ð˜Ð›Ð¢Ð¢ÐÐ™ Ð”Ð£Ð£Ð¡Ð¡ÐÐ';
+      case 'CANCELLED': return 'Ð¦Ð£Ð¦Ð›ÐÐ“Ð”Ð¡ÐÐ';
+      default: return status;
+    }
+  };
 
   const banks = [
     'Хаан Банк',
@@ -35,12 +51,14 @@ export default function WalletPage() {
 
   const fetchData = async () => {
     try {
-      const [me, wHistory] = await Promise.all([
+      const [me, wHistory, eData] = await Promise.all([
         auth.me(),
-        withdrawals.mine()
+        withdrawals.mine(),
+        escrow.list().catch(() => [])
       ]);
       setUser(me);
       setHistory(wHistory);
+      setEscrowTrades(eData || []);
     } catch (err: any) {
       console.error('Wallet fetch error:', err);
     } finally {
@@ -51,6 +69,16 @@ export default function WalletPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleSubmitCreds = async (id: string) => {
+    const creds = credsInput[id];
+    if (!creds?.trim()) { alert('Дансны мэдээллээ оруулна уу'); return; }
+    try {
+      await escrow.submitCreds(id, creds);
+      setEscrowTrades(prev => prev.map(t => t.id === id ? { ...t, status: 'PENDING_MIDDLEMAN_VERIFICATION', account_credentials: creds } : t));
+      alert('Мэдээллийг дундын дансны зохицуулагчид амжилттай илгээлээ!');
+    } catch (err: any) { alert(err.message || 'Failed to submit credentials'); }
+  };
 
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,6 +141,26 @@ export default function WalletPage() {
         </div>
       </div>
 
+      
+      {/* Navigation Tabs */}
+      <div className="flex items-center gap-2 p-1.5 bg-surface-container-low border border-outline-variant/10 rounded-3xl mb-12 w-fit">
+        {(['wallet', 'escrow'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={cn(
+              "px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer",
+              activeTab === tab 
+                ? "bg-primary text-on-primary shadow-lg" 
+                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
+            )}
+          >
+            {tab === 'escrow' ? 'Дундын данс' : 'Хэтэвч & Татан авалт'}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'wallet' && (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Left Column: Balance Card & Form */}
         <div className="lg:col-span-5 space-y-8">
@@ -327,7 +375,153 @@ export default function WalletPage() {
             </div>
           </motion.div>
         </div>
-      </div>
+            </div>
+      )}
+
+      {activeTab === 'escrow' && (
+        <div className="space-y-8">
+
+          <div className="glass-card rounded-[48px] border border-outline-variant/10 p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h3 className="text-xl font-display font-bold text-on-surface mb-2">╨£╨╕╨╜╨╕╨╣ ╨┤╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨╜╤ï ╨│╥»╨╣╨╗╨│╤ì╤ì╨╜╥»╥»╨┤</h3>
+              <p className="text-xs text-on-surface-variant max-w-xl leading-relaxed">
+                ╨ö╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨╜╤ï ╨╜╨░╨╣╨┤╨▓╨░╤Ç╤é╨░╨╣ ╨│╥»╨╣╨╗╨│╤ì╤ì╨│╤ì╤ì ╤à╤Å╨╜╨░╤à. ╨Ñ╤â╨┤╨░╨╗╨┤╨░╨╜ ╨░╨▓╨░╨│╤ç ╨╝╙⌐╨╜╨│╙⌐╙⌐ ╨▒╨░╨╣╤Ç╤ê╤â╤â╨╗╨╢, ╤à╤â╨┤╨░╨╗╨┤╨░╨│╤ç ╨┤╨░╨╜╤ü╨╜╤ï ╨╝╤ì╨┤╤ì╤ì╨╗╨╗╤ì╤ì ╨╛╤Ç╤â╤â╨╗╨╢ ╤ê╨░╨╗╨│╤â╤â╨╗╨╜╨░.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-6 py-3 rounded-2xl text-yellow-400 text-xs font-black uppercase tracking-widest">
+              <ShieldCheck className="w-4 h-4" /> ╨ö╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨░╨░╤Ç ╤à╨░╨╝╨│╨░╨░╨╗╨░╨│╨┤╤ü╨░╨╜
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8">
+            {escrowTrades.length === 0 ? (
+              <div className="glass-surface rounded-[40px] p-16 text-center border border-outline-variant/10">
+                <ShieldCheck className="w-12 h-12 text-outline mx-auto mb-4 opacity-40" />
+                <h4 className="text-lg font-bold text-on-surface mb-2">╨ö╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨╜╤ï ╨│╥»╨╣╨╗╨│╤ì╤ì ╨╛╨╗╨┤╤ü╨╛╨╜╨│╥»╨╣</h4>
+                <p className="text-xs text-on-surface-variant">╨ó╨░╨╜╨┤ ╨╕╨┤╤ì╨▓╤à╤é╤ì╨╣ ╤ì╤ü╨▓╤ì╨╗ ╙⌐╨╝╨╜╙⌐╤à ╨┤╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨╜╤ï ╨│╥»╨╣╨╗╨│╤ì╤ì ╨▒╨░╨╣╤à╨│╥»╨╣ ╨▒╨░╨╣╨╜╨░.</p>
+              </div>
+            ) : (
+              escrowTrades.map((trade) => {
+                const isBuyer = trade.buyer_id === user?.id;
+                const isSeller = trade.seller_id === user?.id;
+
+                return (
+                  <div key={trade.id} className="glass-card rounded-[40px] border border-outline-variant/10 p-8 shadow-2xl relative overflow-hidden group">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 pb-6 border-b border-outline-variant/5">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="font-mono text-xs text-primary font-bold">#{trade.id.slice(0, 8)}</span>
+                          <span className={cn(
+                            "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
+                            trade.status === 'COMPLETED' ? "bg-green-500/10 text-green-400 border border-green-500/20" :
+                            trade.status === 'CANCELLED' ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                            trade.status === 'PENDING_MIDDLEMAN_VERIFICATION' ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 animate-pulse" :
+                            "bg-green-500/10 text-green-400 border border-green-500/20"
+                          )}>
+                            {getStatusLabel(trade.status)}
+                          </span>
+                          <span className={cn(
+                            "px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest",
+                            isBuyer ? "bg-secondary/10 text-secondary" : "bg-purple-500/10 text-purple-400"
+                          )}>
+                            {isBuyer ? '╨Ñ╨ú╨ö╨É╨¢╨ö╨É╨¥ ╨É╨Æ╨É╨ô╨º' : '╨Ñ╨ú╨ö╨É╨¢╨ö╨É╨ô╨º'}
+                          </span>
+                        </div>
+                        <h4 className="text-lg font-display font-bold text-on-surface">{trade.product_title}</h4>
+                        <div className="text-xs text-on-surface-variant mt-1">
+                          ╨Ñ╤â╨┤╨░╨╗╨┤╨░╨╜ ╨░╨▓╨░╨│╤ç: <span className="text-on-surface font-bold">{trade.buyer_name}</span> | ╨Ñ╤â╨┤╨░╨╗╨┤╨░╨│╤ç: <span className="text-on-surface font-bold">{trade.seller_name}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs text-on-surface-variant block mb-1">╨ö╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨░╨╜ ╨┤╨░╤à╤î ╨┤╥»╨╜</span>
+                        <span className="text-2xl font-display font-bold text-primary">Γé«{trade.amount.toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    {isSeller && trade.status === 'PENDING_SELLER_CREDS' && (
+                      <div className="bg-surface-container-high/60 border border-outline-variant/10 rounded-3xl p-6 mb-6 space-y-4">
+                        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-yellow-400">
+                          <Key className="w-4 h-4" /> ╨¿╨░╨░╤Ç╨┤╨╗╨░╨│╨░╤é╨░╨╣ ╥»╨╣╨╗╨┤╤ì╨╗: ╨ö╨░╨╜╤ü╨╜╤ï ╨╝╤ì╨┤╤ì╤ì╨╗╨╗╤ì╤ì ╨╛╤Ç╤â╤â╨╗╨░╤à
+                        </div>
+                        <p className="text-xs text-on-surface-variant">
+                          ╨¥╤ì╨▓╤é╤Ç╤ì╤à ╨╜╤ì╤Ç, ╨╜╤â╤â╤å ╥»╨│ ╨▒╨╛╨╗╨╛╨╜ ╨▒╤â╤ü╨░╨┤ ╤ê╨░╨░╤Ç╨┤╨╗╨░╨│╨░╤é╨░╨╣ ╨╖╨░╨░╨▓╤Ç╤ï╨│ ╨╛╤Ç╤â╤â╨╗╨╜╨░ ╤â╤â. ╨¡╨┤╨│╤ì╤ì╤Ç╨╕╨╣╨│ ╨┤╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨╜╤ï ╨╖╨╛╤à╨╕╤å╤â╤â╨╗╨░╨│╤ç ╤ê╨░╨╗╨│╨░╤à ╨▒╨╛╨╗╨╜╨╛.
+                        </p>
+                        <textarea
+                          rows={4}
+                          value={credsInput[trade.id] || ''}
+                          onChange={e => setCredsInput({ ...credsInput, [trade.id]: e.target.value })}
+                          placeholder="╨¥╤ì╨▓╤é╤Ç╤ì╤à ╨╜╤ì╤Ç: elite_gamer&#10;╨¥╤â╤â╤å ╥»╨│: ********&#10;╨¥╤ì╨╝╤ì╨╗╤é: Steam-╤ì╤ì╤Ç ╨╜╤ì╨▓╤é╤ì╤Ç╨╜╤ì..."
+                          className="w-full bg-black/50 border border-outline-variant/20 rounded-2xl py-4 px-6 text-xs font-mono text-primary focus:border-primary outline-none transition-all resize-none"
+                        />
+                        <div className="flex justify-end pt-2">
+                          <button
+                            onClick={() => handleSubmitCreds(trade.id)}
+                            className="px-8 py-3 bg-primary text-on-primary font-black rounded-2xl text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                          >
+                            ╨£╤ì╨┤╤ì╤ì╨╗╨╗╨╕╨╣╨│ ╨┤╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨░╨╜╨┤ ╨╕╨╗╨│╤ì╤ì╤à
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {isBuyer && trade.status !== 'CANCELLED' && (
+                      <div className="bg-green-500/10 border border-green-500/20 rounded-3xl p-6 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-[0_0_20px_rgba(34,197,94,0.08)]">
+                        <div className="flex items-center gap-3 text-green-400">
+                          <ShieldCheck className="w-6 h-6 animate-pulse flex-shrink-0" />
+                          <div>
+                            <div className="font-display font-black text-sm uppercase tracking-wide">
+                              ≡ƒöÆ ╨ó╙¿╨¢╨æ╙¿╨á ╨ö╨ú╨¥╨ö╨½╨¥ ╨ö╨É╨¥╨í╨É╨¥╨ö ╨É╨£╨û╨ÿ╨¢╨ó╨ó╨É╨Ö ╨æ╨É╨Ö╨á╨¿╨¢╨É╨É!
+                            </div>
+                            <div className="text-xs text-on-surface-variant font-medium mt-0.5">
+                              ╨ó╨░╨╜╤ï Γé«{trade.amount.toLocaleString()} ╤é╙⌐╨╗╨▒╙⌐╤Ç ╨╝╨░╨╜╨░╨╣ ╨┤╤â╨╜╨┤╤ï╨╜ ╤à╨░╨╝╨│╨░╨░╨╗╨░╨╗╤é╤ï╨╜ ╨┤╨░╨╜╤ü╨░╨╜╨┤ ╨░╨╝╨╢╨╕╨╗╤é╤é╨░╨╣ ╨╛╤Ç╨╢ ╨░╤Ä╤â╨╗╨│╥»╨╣ ╤à╨░╨┤╨│╨░╨╗╨░╨│╨┤╨╗╨░╨░. ╨Ñ╤â╨┤╨░╨╗╨┤╨░╨│╤ç ╨┤╨░╨╜╤ü╨╜╤ï ╨╝╤ì╨┤╤ì╤ì╨╗╨╗╤ì╤ì ╨╛╤Ç╤â╤â╨╗╨╝╨░╨│╤å ╨╖╤â╤â╤ç╨╗╨░╨│╤ç ╤à╤Å╨╜╨░╨╜ ╨▒╨░╤é╨░╨╗╨│╨░╨░╨╢╤â╤â╨╗╨╜╨░.
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-green-400 bg-green-500/20 border border-green-500/30 px-4 py-2 rounded-xl">
+                          ╨ó╙¿╨¢╨æ╙¿╨á ╨æ╨É╨ó╨É╨¢╨ô╨É╨É╨û╨í╨É╨¥
+                        </span>
+                      </div>
+                    )}
+
+                    {isBuyer && trade.status === 'PENDING_SELLER_CREDS' && (
+                      <div className="bg-surface-container-high/40 border border-outline-variant/5 rounded-3xl p-6 text-xs text-on-surface-variant flex items-center gap-3 font-medium">
+                        <Clock className="w-5 h-5 text-primary animate-pulse flex-shrink-0" /> ╨Ñ╤â╨┤╨░╨╗╨┤╨░╨│╤ç ╨┤╨░╨╜╤ü╨╜╤ï ╨╝╤ì╨┤╤ì╤ì╨╗╨╗╤ì╤ì ╨╛╤Ç╤â╤â╨╗╨░╤à╤ï╨│ ╤à╥»╨╗╤ì╤ì╨╢ ╨▒╨░╨╣╨╜╨░.
+                      </div>
+                    )}
+
+                    {trade.status === 'PENDING_MIDDLEMAN_VERIFICATION' && (
+                      <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-3xl p-6 text-xs text-yellow-400 flex items-center gap-3 font-medium">
+                        <ShieldCheck className="w-5 h-5 animate-pulse flex-shrink-0" /> ╨£╤ì╨┤╤ì╤ì╨╗╤ì╨╗ ╨╕╨╗╨│╤ì╤ì╨│╨┤╤ü╤ì╨╜. ╨ö╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨╜╤ï ╨╖╨╛╤à╨╕╤å╤â╤â╨╗╨░╨│╤ç ╨▒╥»╤Ç╤é╨│╤ì╨╗╨╕╨╣╨│ ╤ê╨░╨╗╨│╨░╨╢ ╨▒╨░╨╣╨╜╨░.
+                      </div>
+                    )}
+
+                    {trade.status === 'COMPLETED' && (
+                      <div className="bg-green-500/5 border border-green-500/10 rounded-3xl p-6 space-y-3 text-xs text-green-400 font-medium">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="w-5 h-5 flex-shrink-0" /> ╨ô╥»╨╣╨╗╨│╤ì╤ì╨│ ╨┤╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨╜╤ï ╨╖╨╛╤à╨╕╤å╤â╤â╨╗╨░╨│╤ç ╨░╨╝╨╢╨╕╨╗╤é╤é╨░╨╣ ╨▒╨░╤é╨░╨╗╨│╨░╨░╨╢╤â╤â╨╗╨╗╨░╨░.
+                        </div>
+                        {isBuyer && trade.account_credentials && (
+                          <div className="bg-black/50 p-4 rounded-2xl font-mono text-xs text-primary border border-primary/20 whitespace-pre-wrap select-all mt-2">
+                            <div className="text-[10px] text-outline uppercase tracking-widest mb-1">╨æ╨░╤é╨░╨╗╨│╨░╨░╨╢╤ü╨░╨╜ ╨┤╨░╨╜╤ü╨╜╤ï ╨╝╤ì╨┤╤ì╤ì╨╗╤ì╨╗:</div>
+                            {trade.account_credentials}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {trade.status === 'CANCELLED' && (
+                      <div className="bg-red-500/5 border border-red-500/10 rounded-3xl p-6 text-xs text-red-400 flex items-center gap-3 font-medium">
+                        <XCircle className="w-5 h-5 flex-shrink-0" /> ╨ô╥»╨╣╨╗╨│╤ì╤ì╨│ ╤å╤â╤å╨░╨╗╨╗╨░╨░. ╨ö╤â╨╜╨┤╤ï╨╜ ╨┤╨░╨╜╤ü╨░╨╜ ╨┤╨░╤à╤î ╨╝╙⌐╨╜╨│╨╕╨╣╨│ ╤à╤â╨┤╨░╨╗╨┤╨░╨╜ ╨░╨▓╨░╨│╤ç╨╕╨╣╨╜ ╥»╨╗╨┤╤ì╨│╨┤╤ì╨╗╨┤ ╨▒╤â╤å╨░╨░╨▓.
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        
+        </div>
+      )}
     </div>
   );
 }
