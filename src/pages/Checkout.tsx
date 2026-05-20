@@ -24,6 +24,7 @@ export default function Checkout() {
   const [searchParams] = useSearchParams();
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'qpay' | 'socialpay' | 'wallet'>('card');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,7 +80,8 @@ export default function Checkout() {
       } else {
         await ordersApi.create(product.id, selectedTier.name.toUpperCase());
       }
-      setTimeout(() => navigate('/orders'), 1500);
+      setIsPaid(true);
+      setTimeout(() => navigate('/orders'), 4000);
     } catch (err: any) {
       alert(err.message || 'Payment failed');
       setIsProcessing(false);
@@ -92,6 +94,51 @@ export default function Checkout() {
     { id: 'socialpay', label: 'SocialPay', icon: Smartphone },
     { id: 'wallet', label: 'Хэтэвч', icon: Wallet },
   ] as const;
+
+  if (isPaid) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center max-w-lg"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            className="w-32 h-32 rounded-full bg-green-500/10 border-2 border-green-500/30 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-green-500/20"
+          >
+            <CheckCircle className="w-16 h-16 text-green-400" />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <h2 className="text-4xl font-display font-bold text-on-surface mb-3">
+              {isEscrow ? 'Дундын данс нээгдлээ!' : 'Захиалга амжилттай!'}
+            </h2>
+            <p className="text-on-surface-variant text-lg mb-2">
+              <span className="text-on-surface font-bold">{product?.title}</span> — <span className="text-primary font-bold">{selectedTier?.name}</span>
+            </p>
+            <p className="text-on-surface-variant mb-8">
+              {isEscrow
+                ? 'Таны мөнгийг дундын дансанд байршуулалаа. Борлуулагч мэдээллээ оруулсны дараа дундын зуучлагч шалгана.'
+                : 'Таны захиалга амжилттай бүртгэгдлээ. Борлуулагч тантай холбогдох болно.'}
+            </p>
+            <div className="bg-surface-container-high/50 rounded-2xl p-6 mb-8 text-left space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">Захиалгын дүн</span>
+                <span className="font-bold text-on-surface">₮{totalWithFee.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">Төрөл</span>
+                <span className="font-bold text-primary">{isEscrow ? 'ДУНДЫН ДАНС' : 'ШУУД ЗАХИАЛГА'}</span>
+              </div>
+            </div>
+            <p className="text-xs text-on-surface-variant animate-pulse">Захиалгын хуудас руу шилжиж байна...</p>
+          </motion.div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">

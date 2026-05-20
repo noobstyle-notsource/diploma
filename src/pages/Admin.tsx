@@ -52,18 +52,20 @@ export default function Admin() {
   };
 
   const handleVerifyEscrow = async (id: string) => {
+    if (!window.confirm('Та энэ гүйлгээг баталгаажуулж, төлбөрийг борлуулагч руу шилжүүлэхдээ итгэлтэй байна уу?')) return;
     try {
       await escrow.verify(id);
       setEscrowTrades(prev => prev.map(t => t.id === id ? { ...t, status: 'COMPLETED' } : t));
-      alert('Данс солилцоо баталгаажиж, төлбөр борлуулагч руу шилжлээ!');
+      alert('✅ Данс солилцоо баталгаажиж, төлбөр борлуулагч руу шилжлээ!');
     } catch (err: any) { alert(err.message || 'Failed to verify trade'); }
   };
 
   const handleCancelEscrow = async (id: string) => {
+    if (!window.confirm('Та энэ гүйлгээг цуцлаж, мөнгийг худалдан авагчид буцаахдаа итгэлтэй байна уу?')) return;
     try {
       await escrow.cancel(id);
       setEscrowTrades(prev => prev.map(t => t.id === id ? { ...t, status: 'CANCELLED' } : t));
-      alert('Данс солилцоо цуцлагдаж, төлбөр худалдан авагч руу буцлаа!');
+      alert('❌ Данс солилцоо цуцлагдаж, төлбөр худалдан авагч руу буцлаа!');
     } catch (err: any) { alert(err.message || 'Failed to cancel trade'); }
   };
 
