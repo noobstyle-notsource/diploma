@@ -44,7 +44,16 @@ async function initDb() {
   await sql`CREATE TABLE IF NOT EXISTS notifications (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), type TEXT NOT NULL, content TEXT NOT NULL, read BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS escrow_trades (id TEXT PRIMARY KEY, buyer_id TEXT NOT NULL REFERENCES users(id), seller_id TEXT NOT NULL REFERENCES users(id), product_id TEXT NOT NULL REFERENCES products(id), amount REAL DEFAULT 0, account_credentials TEXT DEFAULT '', status TEXT DEFAULT 'PENDING_SELLER_CREDS', middleman_id TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS withdrawals (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), amount REAL NOT NULL, bank_name TEXT NOT NULL, account_number TEXT NOT NULL, account_holder TEXT NOT NULL, status TEXT DEFAULT 'PENDING', created_at TIMESTAMPTZ DEFAULT NOW())`;
-  try { await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS wear_condition TEXT DEFAULT 'Brand New'`; } catch {}
+  try { 
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS wear_condition TEXT DEFAULT 'Brand New'`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS basic_price REAL DEFAULT 0`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS pro_price REAL DEFAULT 0`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS elite_price REAL DEFAULT 0`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS basic_name TEXT DEFAULT 'BASIC'`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS pro_name TEXT DEFAULT 'PRO'`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS elite_name TEXT DEFAULT 'ELITE'`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS per_unit TEXT DEFAULT '/session'`;
+  } catch {}
 }
 
 // Middleware
@@ -163,6 +172,7 @@ app.get('/api/products/:id', async (req, res) => {
 });
 
 app.post('/api/products', auth, async (req, res) => {
+  await initDb(); // Ensure schema is up to date before inserting
   const id = randomUUID();
   const { title, description, category, wearCondition, basicPrice, proPrice, elitePrice, basicName, proName, eliteName, perUnit, images } = req.body;
   await sql`INSERT INTO products (id, user_id, title, description, category, wear_condition, basic_price, pro_price, elite_price, basic_name, pro_name, elite_name, per_unit, images) VALUES (${id}, ${req.user.id}, ${title}, ${description}, ${category}, ${wearCondition || 'Brand New'}, ${basicPrice}, ${proPrice}, ${elitePrice}, ${basicName}, ${proName}, ${eliteName}, ${perUnit}, ${JSON.stringify(images)})`;
