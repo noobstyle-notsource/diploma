@@ -81,6 +81,8 @@ export default function ServiceDetail() {
 
   const currentPlaceholder = GET_PLACEHOLDER(product.category);
   const finalImgSrc = imgSrc || currentPlaceholder;
+  const cat = product.category?.toLowerCase() || '';
+  const isProduct = cat.includes('gear') || cat.includes('supp') || cat.includes('hardware');
 
   const benefits = [
     { text: 'Баталгаатай Үр Дүн', icon: Shield },
@@ -262,18 +264,25 @@ export default function ServiceDetail() {
                     </ul>
 
                     <div className="space-y-3">
-                      <button
-                        onClick={() => handleOrder(tier.index)}
-                        className={cn(
-                          "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 cursor-pointer",
-                          buttonBg, shadowColor
-                        )}
-                      >
-                        {tier.buttonText}
-                      </button>
+                      {isProduct && (
+                        <button
+                          onClick={() => handleOrder(tier.index)}
+                          className={cn(
+                            "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 cursor-pointer",
+                            buttonBg, shadowColor
+                          )}
+                        >
+                          {tier.buttonText}
+                        </button>
+                      )}
                       <button
                         onClick={() => handleEscrowOrder(tier.index)}
-                        className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center gap-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500 hover:text-black hover:scale-105 active:scale-95 cursor-pointer"
+                        className={cn(
+                          "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all duration-300",
+                          isProduct 
+                            ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500 hover:text-black hover:scale-105 active:scale-95 shadow-yellow-500/10"
+                            : "bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_35px_rgba(234,179,8,0.6)]"
+                        )}
                       >
                         <Shield className="w-4 h-4" /> Баталгаат дундын дансаар авах
                       </button>

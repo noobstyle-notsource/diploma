@@ -185,6 +185,9 @@ app.post('/api/upload', auth, upload.single('image'), (req, res) => {
 app.get('/api/conversations', auth, async (req, res) => {
   const rows = await sql`
     SELECT c.*, u.username as other_name, u.avatar as other_avatar,
+    (SELECT username FROM users WHERE id = c.buyer_id) as buyer_name,
+    (SELECT username FROM users WHERE id = c.seller_id) as seller_name,
+    (SELECT title FROM products WHERE id = c.product_id) as product_title,
     (SELECT text FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_text,
     (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != ${req.user.id} AND read = FALSE) as unread
     FROM conversations c

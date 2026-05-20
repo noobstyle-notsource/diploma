@@ -92,7 +92,7 @@ export default function Messages() {
           <div className="flex-grow overflow-y-auto px-4 pb-8 space-y-2">
             {chats.length === 0 && <p className="text-center text-sm text-on-surface-variant py-8">Харилцан яриа байхгүй байна.</p>}
             {chats.map(chat => {
-              const other = currentUserId === chat.buyer_id ? chat.seller_name : chat.buyer_name;
+              const other = chat.other_name || (currentUserId === chat.buyer_id ? chat.seller_name : chat.buyer_name) || 'Хэрэглэгч';
               const isSelected = selectedChat?.id === chat.id;
               return (
                 <button key={chat.id} onClick={() => setSelectedChat(chat)}
@@ -125,12 +125,12 @@ export default function Messages() {
                 <div className="flex items-center gap-5">
                   <div className="relative">
                     <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-xl font-bold text-primary shadow-lg">
-                      {(currentUserId === selectedChat.buyer_id ? selectedChat.seller_name : selectedChat.buyer_name)?.[0]?.toUpperCase()}
+                      {(selectedChat.other_name || (currentUserId === selectedChat.buyer_id ? selectedChat.seller_name : selectedChat.buyer_name))?.[0]?.toUpperCase() || 'U'}
                     </div>
                     <Circle className="absolute -bottom-1 -right-1 w-4 h-4 text-green-500 fill-green-500" />
                   </div>
                   <div>
-                    <h3 className="text-headline-md text-on-surface">{currentUserId === selectedChat.buyer_id ? selectedChat.seller_name : selectedChat.buyer_name}</h3>
+                    <h3 className="text-headline-md text-on-surface">{selectedChat.other_name || (currentUserId === selectedChat.buyer_id ? selectedChat.seller_name : selectedChat.buyer_name) || 'Хэрэглэгч'}</h3>
                     <span className="text-xs font-black uppercase tracking-widest text-primary">Идэвхтэй байна</span>
                   </div>
                 </div>
