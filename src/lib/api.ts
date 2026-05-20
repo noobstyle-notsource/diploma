@@ -117,15 +117,24 @@ export interface Product {
   created_at: string;
 }
 
+const mapProduct = (p: any): Product => ({
+  ...p,
+  tiers: [
+    { name: p.basic_name || 'BASIC', price: Number(p.basic_price || 0) },
+    { name: p.pro_name || 'PRO', price: Number(p.pro_price || 0) },
+    { name: p.elite_name || 'ELITE', price: Number(p.elite_price || 0) }
+  ]
+});
+
 export const products = {
   list: (params?: { category?: string; search?: string }) => {
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params ?? {}).filter(([, v]) => v)) as Record<string, string>,
     ).toString();
-    return request<Product[]>('GET', `/products${qs ? `?${qs}` : ''}`);
+    return request<any[]>('GET', `/products${qs ? `?${qs}` : ''}`).then(list => list.map(mapProduct));
   },
-  get: (id: string) => request<Product>('GET', `/products/${id}`),
-  mine: () => request<Product[]>('GET', '/products/mine'),
+  get: (id: string) => request<any>('GET', `/products/${id}`).then(mapProduct),
+  mine: () => request<any[]>('GET', '/products/mine').then(list => list.map(mapProduct)),
   create: (data: Partial<Product>) => request<{ id: string; message: string }>('POST', '/products', data),
   delete: (id: string) => request<{ message: string }>('DELETE', `/products/${id}`),
 };
