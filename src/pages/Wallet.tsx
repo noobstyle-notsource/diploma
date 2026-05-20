@@ -313,44 +313,91 @@ export default function WalletPage() {
             className="glass-card rounded-[32px] p-8 border border-outline-variant/10 shadow-xl min-h-[600px] flex flex-col justify-between"
           >
             <div>
+              
               <h3 className="text-xl font-display font-bold text-on-surface mb-8 flex items-center gap-3">
-                <ArrowDownLeft className="w-6 h-6 text-primary" /> Татан авалтын түүх
+                <ArrowDownLeft className="w-6 h-6 text-primary" /> Гүйлгээний түүх
               </h3>
 
               <div className="space-y-4">
-                {history.length === 0 ? (
+                {[
+                  ...history.map(h => ({
+                    id: h.id,
+                    type: 'WITHDRAWAL',
+                    amount: -h.amount,
+                    status: h.status,
+                    created_at: h.created_at,
+                    details: h.bank_name,
+                    account: h.account_number,
+                    subtext: `Эзэмшигч: ${h.account_holder}`
+                  })),
+                  ...escrowTrades
+                    .filter(t => (t.buyer_id === user?.id && t.status === 'CANCELLED') || (t.seller_id === user?.id && t.status === 'COMPLETED'))
+                    .map(t => ({
+                      id: t.id,
+                      type: 'ESCROW',
+                      amount: t.amount,
+                      status: 'COMPLETED',
+                      created_at: t.created_at,
+                      details: 'Дундын данс',
+                      account: t.product_title,
+                      subtext: t.buyer_id === user?.id ? 'Цуцлагдсан буцаалт' : 'Борлуулалтын орлого'
+                    }))
+                ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-center text-on-surface-variant">
                     <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-4">
                       <Clock className="w-8 h-8 text-on-surface-variant/40" />
                     </div>
-                    <p className="text-sm font-medium">Одоогоор татан авалтын түүх байхгүй байна.</p>
+                    <p className="text-sm font-medium">Одоогоор гүйлгээний түүх байхгүй байна.</p>
                   </div>
                 ) : (
-                  history.map((item) => (
+                  [
+                  ...history.map(h => ({
+                    id: h.id,
+                    type: 'WITHDRAWAL',
+                    amount: -h.amount,
+                    status: h.status,
+                    created_at: h.created_at,
+                    details: h.bank_name,
+                    account: h.account_number,
+                    subtext: `Эзэмшигч: ${h.account_holder}`
+                  })),
+                  ...escrowTrades
+                    .filter(t => (t.buyer_id === user?.id && t.status === 'CANCELLED') || (t.seller_id === user?.id && t.status === 'COMPLETED'))
+                    .map(t => ({
+                      id: t.id,
+                      type: 'ESCROW',
+                      amount: t.amount,
+                      status: 'COMPLETED',
+                      created_at: t.created_at,
+                      details: 'Дундын данс',
+                      account: t.product_title,
+                      subtext: t.buyer_id === user?.id ? 'Цуцлагдсан буцаалт' : 'Борлуулалтын орлого'
+                    }))
+                ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map((item) => (
                     <div 
-                      key={item.id} 
+                      key={item.id + item.type} 
                       className="p-5 rounded-2xl bg-surface-container-low/40 border border-outline-variant/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-surface-container-high/30 transition-all"
                     >
                       <div className="flex gap-4">
                         <div className="w-10 h-10 rounded-xl bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-on-surface-variant flex-shrink-0">
-                          <Building2 className="w-5 h-5 text-primary" />
+                          {item.type === 'WITHDRAWAL' ? <Building2 className="w-5 h-5 text-primary" /> : <ShieldCheck className="w-5 h-5 text-green-400" />}
                         </div>
                         <div>
                           <div className="font-bold text-on-surface flex items-center gap-2">
-                            <span>{item.bank_name}</span>
-                            <span className="text-xs font-mono font-medium text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded">
-                              {item.account_number}
+                            <span>{item.details}</span>
+                            <span className="text-xs font-mono font-medium text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded max-w-[150px] truncate">
+                              {item.account}
                             </span>
                           </div>
                           <div className="text-[10px] text-on-surface-variant mt-1">
-                            Эзэмшигч: {item.account_holder} • {new Date(item.created_at).toLocaleString()}
+                            {item.subtext} • {new Date(item.created_at).toLocaleString()}
                           </div>
                         </div>
                       </div>
                       
                       <div className="text-right w-full md:w-auto flex md:flex-col justify-between md:justify-start items-center md:items-end">
-                        <div className="text-lg font-display font-bold text-secondary">
-                          -₮{item.amount.toLocaleString()}
+                        <div className={`text-lg font-display font-bold ${item.amount > 0 ? 'text-green-400' : 'text-secondary'}`}>
+                          {item.amount > 0 ? '+' : ''}₮{Math.abs(item.amount).toLocaleString()}
                         </div>
                         <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest mt-1 px-3 py-1 rounded-full border ${
                           item.status === 'COMPLETED' ? 'text-green-400 bg-green-400/5 border-green-400/10' :
@@ -368,6 +415,7 @@ export default function WalletPage() {
                   ))
                 )}
               </div>
+
             </div>
 
             <div className="pt-8 border-t border-outline-variant/10 mt-8 text-center text-xs text-on-surface-variant font-medium">

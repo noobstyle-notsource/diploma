@@ -44,7 +44,7 @@ export default function Notifications() {
         {loading ? (
           <div className="py-20 text-center text-on-surface-variant">Уншиж байна...</div>
         ) : notifs.length === 0 ? (
-          <div className="glass-surface rounded-[32px] py-20 text-center text-on-surface-variant border border-outline-variant/10">
+          <div className="bg-surface rounded-[32px] py-20 text-center text-on-surface-variant border border-outline-variant/10">
             <Bell className="w-12 h-12 mx-auto mb-4 opacity-40" />
             <p>Одоогоор мэдэгдэл байхгүй байна.</p>
           </div>
@@ -59,8 +59,8 @@ export default function Notifications() {
               <Link
                 to={n.link || '#'}
                 className={cn(
-                  "flex gap-6 p-6 rounded-3xl glass-card transition-all hover:bg-surface-container-high border border-outline-variant/10 hover:border-primary/20 group",
-                  !n.read && "bg-primary/5"
+                  "flex gap-6 p-6 rounded-3xl bg-surface-container-low transition-all hover:bg-surface-container-high border border-outline-variant/10 hover:border-primary/20 group",
+                  !n.read && "bg-primary/10"
                 )}
               >
                 <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-outline-variant/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">

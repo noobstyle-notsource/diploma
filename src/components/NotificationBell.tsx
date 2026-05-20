@@ -74,9 +74,9 @@ export default function NotificationBell() {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 mt-4 w-80 glass-surface rounded-3xl border border-outline-variant/20 shadow-2xl overflow-hidden z-[100]"
+            className="absolute right-0 mt-4 w-80 bg-surface border border-outline-variant/20 shadow-2xl overflow-hidden z-[100] rounded-3xl"
           >
-            <div className="p-4 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-high/50">
+            <div className="p-4 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-highest">
               <h3 className="text-xs font-black uppercase tracking-widest text-on-surface">Мэдэгдлүүд</h3>
               {unreadCount > 0 && (
                 <button onClick={handleReadAll} className="text-[10px] font-bold text-primary hover:underline">Бүгдийг уншсанаар тэмдэглэх</button>
@@ -122,7 +122,7 @@ export default function NotificationBell() {
               <Link 
                 to="/notifications" 
                 onClick={() => setOpen(false)}
-                className="block p-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-outline hover:text-primary transition-colors bg-surface-container-high/30 border-t border-outline-variant/10"
+                className="block p-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-outline hover:text-primary transition-colors bg-surface-container-highest border-t border-outline-variant/10"
               >
                 Бүх мэдэгдлийг харах
               </Link>
