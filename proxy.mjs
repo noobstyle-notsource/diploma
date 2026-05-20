@@ -58,4 +58,4 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => console.log(`VOID_AI proxy ready → http://localhost:${PORT}/api/gemini`));
+server.listen(PORT, () => console.log(`ZenGamer AI proxy ready → http://localhost:${PORT}/api/gemini`));
