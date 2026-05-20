@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Bell, ShoppingBag, MessageSquare, Info, CircleAlert, CheckCircle2 } from 'lucide-react';
+import { Bell, ShoppingBag, MessageSquare, Info, CircleAlert, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { notifications, type Notification } from '../lib/api';
 import { Link } from 'react-router-dom';
@@ -48,6 +48,7 @@ export default function NotificationBell() {
       case 'ORDER': return <ShoppingBag className="w-4 h-4 text-secondary" />;
       case 'MESSAGE': return <MessageSquare className="w-4 h-4 text-primary" />;
       case 'SYSTEM': return <CheckCircle2 className="w-4 h-4 text-green-400" />;
+      case 'ESCROW': return <ShieldCheck className="w-4 h-4 text-yellow-400" />;
       default: return <Info className="w-4 h-4 text-outline" />;
     }
   };

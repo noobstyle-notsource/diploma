@@ -18,6 +18,16 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'PENDING_SELLER_CREDS': return 'ТӨЛБӨР ОРСОН - ХУДАЛДАГЧИЙГ ХҮЛЭЭЖ БУЙ';
+      case 'PENDING_MIDDLEMAN_VERIFICATION': return 'ЗУУЧЛАГЧ ХЯНАЖ БАЙНА';
+      case 'COMPLETED': return 'АМЖИЛТТАЙ ДУУССАН';
+      case 'CANCELLED': return 'ЦУЦЛАГДСАН';
+      default: return status;
+    }
+  };
+
   useEffect(() => {
     if (!isLoggedIn()) {
       navigate('/login');
@@ -78,6 +88,37 @@ export default function Orders() {
           <AlertCircle className="w-5 h-5" />
           <span className="font-medium">{error}</span>
         </div>
+      )}
+
+      {searchParams.get('success') === 'true' && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-10 p-6 rounded-[32px] bg-green-500/10 border-2 border-green-500/30 text-green-400 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_30px_rgba(34,197,94,0.15)] relative overflow-hidden"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-emerald-500" />
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-green-500/20 flex items-center justify-center text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.3)] flex-shrink-0 animate-bounce">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-display font-black uppercase tracking-wider text-green-400">
+                🎉 ТӨЛБӨР АМЖИЛТТАЙ ДУНДЫН ДАНСАНД БАЙРШЛАА!
+              </h3>
+              <p className="text-xs text-on-surface-variant font-medium mt-1">
+                Таны {searchParams.get('amount') ? `₮${Number(searchParams.get('amount')).toLocaleString()}` : ''} төлбөр Zen-Gamer хамгаалалтын дундын дансанд амжилттай орлоо. Гүйлгээ баталгаажсан тул борлуулагч дансны мэдээллээ оруулмагц та хүлээн авах болно.
+              </p>
+            </div>
+          </div>
+          <button 
+            onClick={() => {
+              navigate(activeTab === 'escrow' ? '/orders?tab=escrow' : '/orders', { replace: true });
+            }}
+            className="px-6 py-2.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer whitespace-nowrap"
+          >
+            Хаах
+          </button>
+        </motion.div>
       )}
 
       {/* Navigation Tabs */}
@@ -204,9 +245,9 @@ export default function Orders() {
                             trade.status === 'COMPLETED' ? "bg-green-500/10 text-green-400 border border-green-500/20" :
                             trade.status === 'CANCELLED' ? "bg-red-500/10 text-red-400 border border-red-500/20" :
                             trade.status === 'PENDING_MIDDLEMAN_VERIFICATION' ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 animate-pulse" :
-                            "bg-primary/10 text-primary border border-primary/20"
+                            "bg-green-500/10 text-green-400 border border-green-500/20"
                           )}>
-                            {trade.status}
+                            {getStatusLabel(trade.status)}
                           </span>
                           <span className={cn(
                             "px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest",
@@ -249,6 +290,25 @@ export default function Orders() {
                             Мэдээллийг дундын дансанд илгээх
                           </button>
                         </div>
+                      </div>
+                    )}
+
+                    {isBuyer && trade.status !== 'CANCELLED' && (
+                      <div className="bg-green-500/10 border border-green-500/20 rounded-3xl p-6 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-[0_0_20px_rgba(34,197,94,0.08)]">
+                        <div className="flex items-center gap-3 text-green-400">
+                          <ShieldCheck className="w-6 h-6 animate-pulse flex-shrink-0" />
+                          <div>
+                            <div className="font-display font-black text-sm uppercase tracking-wide">
+                              🔒 ТӨЛБӨР ДУНДЫН ДАНСАНД АМЖИЛТТАЙ БАЙРШЛАА!
+                            </div>
+                            <div className="text-xs text-on-surface-variant font-medium mt-0.5">
+                              Таны ₮{trade.amount.toLocaleString()} төлбөр манай дундын хамгаалалтын дансанд амжилттай орж аюулгүй хадгалагдлаа. Худалдагч дансны мэдээллээ оруулмагц зуучлагч хянан баталгаажуулна.
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-green-400 bg-green-500/20 border border-green-500/30 px-4 py-2 rounded-xl">
+                          ТӨЛБӨР БАТАЛГААЖСАН
+                        </span>
                       </div>
                     )}
 

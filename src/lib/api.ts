@@ -164,7 +164,7 @@ export interface Notification {
   user_id: string;
   title: string;
   message: string;
-  type: 'INFO' | 'ORDER' | 'MESSAGE' | 'SYSTEM';
+  type: 'INFO' | 'ORDER' | 'MESSAGE' | 'SYSTEM' | 'ESCROW';
   read: boolean;
   link?: string;
   created_at: string;

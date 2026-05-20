@@ -84,7 +84,7 @@ export default function Checkout() {
         await ordersApi.create(product.id, tierDbKey);
       }
       setIsPaid(true);
-      setTimeout(() => navigate('/orders'), 4000);
+      setTimeout(() => navigate(isEscrow ? `/orders?tab=escrow&success=true&amount=${totalWithFee}` : `/orders?success=true&amount=${totalWithFee}`), 4000);
     } catch (err: any) {
       alert(err.message || 'Payment failed');
       setIsProcessing(false);
