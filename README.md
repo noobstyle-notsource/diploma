@@ -1,145 +1,106 @@
-# Zen-Gamer - Technical & Business Logic Documentation
+# Zen-Gamer - Codebase Architecture & Technical Documentation
 
-Welcome to the Zen-Gamer repository. This document serves as a comprehensive guide to understanding the origin story, business rules, entire architecture, API logic, and frontend mechanisms of the platform.
+This document provides a deep technical dive into the Zen-Gamer codebase. It covers the code structure, internal logic, and the specific methods used to connect the React frontend with the Express backend.
 
-## 1. The Story Behind Zen-Gamer (Төслийн үүсэл, Бизнесийн санаа)
+## 1. Directory & Code Structure
 
-The idea for Zen-Gamer was born out of personal frustration and a clear gap in the Mongolian gaming community.
-- **The Scam Problem**: "Би өөрөө тоглоомын хаяг (account) авах гэж байгаад 3 ч удаа луйвардуулж (scam) байсан." Without a trusted middleman, buying and selling accounts or gaming services is incredibly risky. Zen-Gamer's Escrow (Дундын данс) system was explicitly built to solve this.
-- **The Coaching Gap**: "Тоглоомон дээрээ илүү сайжрахыг маш их хүссэн боловч надад заагаад өгөх багш (coach) олдож байгаагүй." There was no centralized marketplace where skilled players could monetize their talent by coaching or boosting others.
-- **The Demand for Rentals**: "Хүмүүс надаас байнга тоглоомын хаяг түрээслэх талаар асуудаг байсан." High-tier accounts with rare skins or high ranks are in demand for short-term use. 
-
-Zen-Gamer was created to be the definitive, safe, and premium hub for all of these needs—protecting buyers, empowering skilled gamers, and creating a unified gaming economy.
-
-## 2. Project Directory Structure
-
-Here is an overview of the repository layout:
+The project follows a monorepo-style structure where the backend and frontend coexist in the same repository.
 
 ```text
 Zen-Gamer/
 ├── api/
-│   └── index.mjs           # Express Backend: Database initialization, API routes, Auth, Webhooks
+│   └── index.mjs           # Express Backend: Contains all API routes, DB migrations, Auth middleware.
 ├── src/
-│   ├── assets/             # Static images, placeholders, global CSS
-│   ├── components/         # Reusable React UI (Navbar, NotificationBell, Footer)
-│   ├── lib/                # Core utilities
-│   │   ├── api.ts          # Centralized API fetch wrapper and endpoint definitions
-│   │   └── utils.ts        # Helper functions (Tailwind class merging - cn)
-│   ├── pages/              # Main App Routes (Home, Wallet, Orders, Products, Notifications)
-│   ├── App.tsx             # Main React Router setup, Global Auth Provider
-│   └── main.tsx            # React DOM entry point
-├── .env                    # Environment variables (Database URLs, API Keys)
-├── package.json            # Dependencies and NPM scripts (concurrently runs client & server)
-├── tailwind.config.js      # Tailwind v4 configuration
-├── tsconfig.json           # TypeScript configuration
-└── vite.config.ts          # Vite bundler configuration
+│   ├── assets/             # Static UI assets and global styles.
+│   ├── components/         # Reusable React components (Navbar, NotificationBell, Footer).
+│   ├── lib/                # Core frontend utilities.
+│   │   ├── api.ts          # Centralized API fetch wrapper and endpoint definitions.
+│   │   └── utils.ts        # Tailwind class merging utility (cn).
+│   ├── pages/              # Main App Routes (Home, Wallet, Orders, Products).
+│   ├── App.tsx             # React Router setup, Global Context (AuthUser), and layout structure.
+│   └── main.tsx            # React DOM entry point.
+├── .env                    # Environment variables (DATABASE_URL, JWT_SECRET, CLOUDINARY).
+├── package.json            # Dependencies and npm scripts (uses `concurrently` for dev).
+├── tailwind.config.js      # Tailwind v4 configuration for theme and styling.
+└── vite.config.ts          # Vite bundler configuration.
 ```
 
-## 3. Business Logic & Domain Model
+## 2. Frontend-Backend Integration (How they connect)
 
-Zen-Gamer is a premium marketplace connecting gamers with services (coaching, boosting, teaming) and products (hardware, gaming gear, supplements).
+The frontend (Vite/React on port 3000) and backend (Express on port 3001) communicate via RESTful API calls. 
 
-### User Roles & Permissions
-- **OPERATOR (Default)**: Standard user. Can buy, sell, chat, deposit, and withdraw.
-- **moderator / admin**: Can moderate content and manage standard users. Can delete any product.
-- **owner**: The ultimate super-admin. Automatically assigned to `misheelmother@gmail.com`. Has full control.
-- **BANNED**: Cannot log in.
+### Centralized Fetch Logic (`src/lib/api.ts`)
+Instead of scattering `fetch()` calls across React components, all HTTP requests are strictly managed by a generic wrapper function in `api.ts`:
 
-### Products vs. Services
-- **Products (Physical Goods)**: Hardware, Gear, Supplements. These items have a **Single Price** (Basic Price is used as the only price).
-- **Services (Digital/Labor)**: Boosting, Coaching, Software. These items operate on a **3-Tier Pricing System** (Basic, Pro, Elite), allowing users to choose the level of service.
+```typescript
+async function request<T>(method: string, path: string, body?: unknown, isForm = false): Promise<T> {
+  const headers: Record<string, string> = { ...authHeaders() }; // Injects JWT Token
+  if (body && !isForm) headers['Content-Type'] = 'application/json';
 
-### Financial System & Escrow (Дундын данс)
-Zen-Gamer operates its own internal wallet system to protect users from scams.
-1. **Wallet Balance**: Users load their wallet (balance is tracked in `users.balance`). 
-2. **Direct Orders**: Buyer purchases a product/service, and funds are immediately transferred.
-3. **Escrow Trades**: 
-   - Buyer initiates an escrow trade. The `amount` is deducted from the buyer and held in the `escrow_trades` table.
-   - The trade status is `PENDING_SELLER_CREDS`.
-   - The Seller submits their gaming account credentials (username/password) through the Wallet page.
-   - The status changes to `PENDING_MIDDLEMAN_VERIFICATION`.
-   - An Admin/Middleman reviews the credentials.
-   - If **Approved** (`COMPLETED`): Funds are transferred to the Seller's balance.
-   - If **Denied/Cancelled** (`CANCELLED`): Funds are fully refunded to the Buyer's balance.
-4. **Withdrawals**: Users can request to withdraw their wallet balance to a real bank account. This deducts their balance and creates a `withdrawals` record.
+  const res = await fetch(`${BASE}${path}`, {
+    method,
+    headers,
+    body: isForm ? (body as FormData) : body ? JSON.stringify(body) : undefined,
+  });
 
-## 4. System Architecture
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data?.error ?? `HTTP ${res.status}`);
+  return data as T;
+}
+```
 
-- **Frontend**: React 19, React Router v7, TailwindCSS v4, Framer Motion (for animations), Lucide React (for icons). Built with Vite.
-- **Backend**: Express.js (Node.js 22+).
-- **Database**: Neon (Serverless PostgreSQL) accessed via `@neondatabase/serverless`.
-- **Authentication**: JWT (JSON Web Tokens) with `bcryptjs` for password hashing.
-- **File Storage**: Configured for Cloudinary via `multer`.
+### Key Integration Mechanics:
+1. **JWT Authentication**: Upon login, the backend issues a JSON Web Token (JWT). The frontend stores this in `localStorage`. The `authHeaders()` function intercepts every outgoing request and attaches `Authorization: Bearer <token>`.
+2. **Error Handling**: If the backend responds with a non-200 status (e.g., `401 Unauthorized` or `400 Bad Request`), the `request` function automatically extracts the backend's JSON error message and throws a standard JavaScript `Error`. React components catch this in `try/catch` blocks and display it to the user.
+3. **CORS (Cross-Origin Resource Sharing)**: The Express backend uses the `cors()` middleware to allow the Vite frontend to make cross-origin HTTP requests during local development.
 
-## 5. Database Schema (`api/index.mjs`)
+## 3. Backend Logic & Database (`api/index.mjs`)
 
-The database is automatically initialized on the first API request via the `initDb()` middleware. It uses safe `try/catch` migration blocks to prevent cold-start failures.
+The backend is a single-file Express application designed for Serverless environments (like Vercel).
 
-- **users**: `id`, `username`, `email`, `password`, `rank`, `balance`, etc.
-- **products**: Stores both single-price products and 3-tier services. Contains arrays for `features` and `images`.
-- **orders**: Direct purchases (`tier`, `status`, `total`).
-- **escrow_trades**: Secures high-value trades. Tracks `buyer_id`, `seller_id`, `account_credentials`, and `status`.
-- **withdrawals**: Tracks bank withdrawal requests.
-- **notifications**: Stores system alerts, order updates, and escrow status changes.
-- **conversations / messages**: Handles the chat system between buyers and sellers.
+### Database Connection (Neon PostgreSQL)
+We use `@neondatabase/serverless` to connect to PostgreSQL over WebSockets/HTTP, which is optimized for serverless edge functions.
 
-### Concurrency & Race Conditions
-All financial transactions (Escrow creation, Withdrawals) use atomic SQL updates with strict constraints:
-\`\`\`sql
-UPDATE users SET balance = balance - ${amount} WHERE id = ${user_id} AND balance >= ${amount} RETURNING id
-\`\`\`
-This prevents negative balances if a user spams the purchase/withdraw button.
+```javascript
+import { neon } from '@neondatabase/serverless';
+const sql = neon(databaseUrl);
+```
 
-## 6. Frontend Data Fetching (`src/lib/api.ts`)
+### Auto-Migration Logic (`initDb`)
+To ensure the database is always in sync with the codebase without requiring manual CLI migrations, the backend uses a "Lazy Initialization" pattern.
+On the very first API request, the `initDb()` middleware fires:
+1. Creates all tables if they don't exist (`IF NOT EXISTS`).
+2. Runs an array of `ALTER TABLE` and `UPDATE` statements within individual `try/catch` blocks.
+3. Sets a flag `_dbReady = true` so subsequent requests bypass this check, ensuring high performance.
 
-The frontend does not use raw `fetch` calls scattered across components. Instead, all API interactions are centralized in `src/lib/api.ts`.
+### Transaction Safety (Race Condition Prevention)
+Financial operations (like Escrow creations and Withdrawals) are protected against race conditions (e.g., users double-clicking a "Buy" button) at the SQL query level:
+```sql
+UPDATE users 
+SET balance = balance - ${amount} 
+WHERE id = ${user_id} AND balance >= ${amount} 
+RETURNING id
+```
+The `AND balance >= ${amount}` clause guarantees that the balance can never go negative, even under heavy concurrent requests.
 
-### The `request<T>` Wrapper
-\`\`\`typescript
-async function request<T>(method: string, path: string, body?: unknown, isForm = false): Promise<T>
-\`\`\`
-- Automatically attaches the `Authorization: Bearer <token>` header by reading from `localStorage`.
-- Automatically stringifies JSON payloads or handles `FormData` for file uploads.
-- Captures HTTP errors and extracts the backend's custom error messages (e.g., `res.status(400).json({ error: "..." })`), throwing them as standard JavaScript Errors to be caught by the UI.
+## 4. Specific Business Logic Flows
 
-### API Modules
-The `api.ts` file exports domain-specific objects:
-- **`auth`**: `.login()`, `.register()`, `.me()`, `.googleLogin()`
-- **`products`**: `.list()`, `.get()`, `.create()`, `.delete()` (Includes the logic that maps raw DB items into normalized `Product` objects, automatically collapsing unused tiers for physical goods).
-- **`orders`**: `.list()`, `.create()`
-- **`escrow`**: `.create()`, `.list()`, `.submitCreds()`
-- **`withdrawals`**: `.mine()`, `.request()`
-- **`notifications`**: `.list()`, `.readAll()`
+### Escrow State Machine (Дундын данс)
+The Escrow system relies on strict state transitions tracked in the `escrow_trades` table:
+1. **Initialization (`PENDING_SELLER_CREDS`)**: Buyer creates a trade. Buyer's balance is deducted immediately.
+2. **Credential Submission (`PENDING_MIDDLEMAN_VERIFICATION`)**: The Seller uses the Wallet UI to submit their account username/password.
+3. **Resolution**:
+   - **`COMPLETED`**: Middleman approves. The funds are mathematically added to the Seller's `users.balance`.
+   - **`CANCELLED`**: Middleman denies. The funds are refunded back to the Buyer's `users.balance`.
 
-### Debouncing & Caching
-The API file includes a custom `debounce` utility and an `aiCache` Map. This is heavily utilized when communicating with the Gemini AI endpoints to prevent rate-limiting and redundant API spam when a user types rapidly.
+### 3-Tier Product Mapping
+In the database, products have columns for `basic_price`, `pro_price`, and `elite_price`. 
+When the frontend fetches products, `api.ts` maps these flat columns into a dynamic `tiers` array:
+- If the category is a physical good (Gear/Hardware), it ignores the Pro/Elite tiers and returns a single price.
+- If it's a digital service (Boosting/Coaching), it maps all non-zero prices into a structured array used by the UI to render the tier selection cards.
 
-## 7. UI & State Management
-
-- **Routing**: Handled by `react-router-dom`. Protected routes check `currentUser` state.
-- **Global State**: The `App.tsx` typically holds the `currentUser` state and passes it down, or components fetch their own data using `useEffect` combined with the `api.ts` wrappers.
-- **Wallet & Transactions (`Wallet.tsx`)**: 
-  - Dual-tab system (Wallet vs Escrow).
-  - Merges `Withdrawals` and completed/cancelled `Escrow Trades` into a single, chronologically sorted **Transaction History** feed.
-  - Dynamically calculates whether an Escrow trade represents an incoming deposit (Seller) or a refund (Buyer).
-- **Notifications (`NotificationBell.tsx` & `Notifications.tsx`)**:
-  - Fetches notifications on load.
-  - Opaque UI design to ensure readability over complex backgrounds.
-  - Unread count badges and one-click "Mark all as read" functionality.
-
-## 8. Future Roadmap (Ирээдүйн хөгжүүлэлтийн төлөвлөгөө)
-
-Zen-Gamer is built to scale. Here are the planned features for upcoming versions:
-
-1. **Account Rental System (Тоглоомын хаяг түрээслэх систем)**
-   - Allowing users to rent high-tier accounts (e.g., stacked skins, high ranks) by the hour or day.
-   - Integration with the Escrow system to lock a deposit, ensuring the renter doesn't get scammed or get the account banned.
-2. **AI-Powered Matchmaking for Coaches**
-   - Using the integrated Gemini AI to analyze a player's playstyle inputs and pair them with the perfect coach based on region, language, and skill level.
-3. **Automated Credential Verification API**
-   - Currently, Escrow requires manual Middleman verification. In the future, integrating with official game APIs (Riot API, Steam API) to instantly verify account credentials and ownership transfers.
-4. **Real-time WebSocket Chat**
-   - Upgrading the current polling-based messaging system to WebSockets (Socket.io) for instant, seamless communication between buyers and sellers.
-
----
-*This documentation is kept up-to-date with the core architectural decisions of Zen-Gamer.*
+### Security Middlewares
+Routes are protected by hierarchical middlewares:
+- `auth`: Decodes JWT, ensures user is not `BANNED`.
+- `adminAuth`: Ensures `req.user.role` is admin, moderator, or owner.
+- `ownerAuth`: Strictly reserved for the `owner`. (Note: Logging in with `misheelmother@gmail.com` automatically promotes the account to `owner` at the database level).
