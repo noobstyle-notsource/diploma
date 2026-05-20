@@ -53,6 +53,7 @@ async function initDb() {
     await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS pro_name TEXT DEFAULT 'PRO'`;
     await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS elite_name TEXT DEFAULT 'ELITE'`;
     await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS per_unit TEXT DEFAULT '/session'`;
+    await sql`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS content TEXT DEFAULT ''`;
   } catch {}
 }
 
