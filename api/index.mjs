@@ -67,6 +67,7 @@ async function initDb() {
     `ALTER TABLE notifications ALTER COLUMN content DROP NOT NULL`,
     `ALTER TABLE notifications ALTER COLUMN type SET DEFAULT 'SYSTEM'`,
     `ALTER TABLE notifications ALTER COLUMN type DROP NOT NULL`,
+    `UPDATE products SET status = 'DELETED' WHERE title = 'CYBER_STRIKE_M3'`,
   ];
   for (const m of migrations) {
     try { await sql(m); } catch (e) { console.warn('Migration skipped:', m, e.message); }
@@ -203,7 +204,15 @@ app.post('/api/products', auth, async (req, res) => {
 });
 
 app.delete('/api/products/:id', auth, async (req, res) => {
-  await sql`UPDATE products SET status = 'DELETED' WHERE id = ${req.params.id} AND user_id = ${req.user.id}`;
+  // Allow owner of product OR admin/owner rank to delete
+  const userRows = await sql`SELECT rank FROM users WHERE id = ${req.user.id}`;
+  const rank = userRows[0]?.rank || '';
+  const isAdmin = ['admin', 'owner', 'moderator'].includes(rank);
+  if (isAdmin) {
+    await sql`UPDATE products SET status = 'DELETED' WHERE id = ${req.params.id}`;
+  } else {
+    await sql`UPDATE products SET status = 'DELETED' WHERE id = ${req.params.id} AND user_id = ${req.user.id}`;
+  }
   res.json({ success: true });
 });
 

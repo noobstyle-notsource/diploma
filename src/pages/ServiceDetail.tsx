@@ -218,7 +218,47 @@ export default function ServiceDetail() {
 
           <div className="lg:col-span-4">
             <div className="sticky top-28 space-y-6">
-              {pricingTiers.map((tier, idx) => {
+              {isProduct && pricingTiers.length === 1 ? (
+                /* Single price card for physical products */
+                <div className="rounded-[32px] p-8 relative overflow-hidden bg-surface-container-high/60 border-2 border-primary/40 shadow-xl">
+                  <div className="flex justify-between items-center mb-8">
+                    <div>
+                      <h4 className="text-2xl font-display font-bold text-on-surface">Бүтээгдэхүүн</h4>
+                      <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{product.wear_condition || product.wearCondition || 'Шинэ'}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-display font-bold text-primary">₮{pricingTiers[0].price.toLocaleString()}</div>
+                      <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{product.per_unit || 'Тогтмол үнэ'}</div>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-center gap-3 text-sm font-medium text-on-surface-variant">
+                      <CheckCircle className="w-4 h-4 text-primary" /> Чанарын баталгаатай
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-medium text-on-surface-variant">
+                      <CheckCircle className="w-4 h-4 text-primary" /> Аюулгүй хүргэлт
+                    </li>
+                  </ul>
+
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => handleOrder(0)}
+                      className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs bg-primary text-on-primary shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                    >
+                      Худалдаж авах
+                    </button>
+                    <button
+                      onClick={() => handleEscrowOrder(0)}
+                      className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500 hover:text-black hover:scale-105 active:scale-95 transition-all shadow-yellow-500/10 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Shield className="w-4 h-4" /> Баталгаат дундын дансаар авах
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Multi-tier cards for services */
+                pricingTiers.map((tier, idx) => {
                 const isPro = idx === 1;
                 const isElite = idx === 2;
                 const isDiamond = idx === 3;
@@ -264,32 +304,17 @@ export default function ServiceDetail() {
                     </ul>
 
                     <div className="space-y-3">
-                      {isProduct && (
-                        <button
-                          onClick={() => handleOrder(tier.index)}
-                          className={cn(
-                            "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 cursor-pointer",
-                            buttonBg, shadowColor
-                          )}
-                        >
-                          {tier.buttonText}
-                        </button>
-                      )}
                       <button
                         onClick={() => handleEscrowOrder(tier.index)}
-                        className={cn(
-                          "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all duration-300",
-                          isProduct 
-                            ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500 hover:text-black hover:scale-105 active:scale-95 shadow-yellow-500/10"
-                            : "bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_35px_rgba(234,179,8,0.6)]"
-                        )}
+                        className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs bg-yellow-500 text-black hover:bg-yellow-400 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_35px_rgba(234,179,8,0.6)] flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <Shield className="w-4 h-4" /> Баталгаат дундын дансаар авах
                       </button>
                     </div>
                   </div>
                 );
-              })}
+              })
+              )}
 
               <div className="p-8 rounded-2xl bg-surface-container-lowest/50 border border-outline-variant/10 shadow-inner">
                 <div className="flex items-center gap-3 mb-3">

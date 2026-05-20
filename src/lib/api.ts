@@ -117,14 +117,29 @@ export interface Product {
   created_at: string;
 }
 
-const mapProduct = (p: any): Product => ({
-  ...p,
-  tiers: [
-    { name: p.basic_name || 'BASIC', price: Number(p.basic_price || 0) },
-    { name: p.pro_name || 'PRO', price: Number(p.pro_price || 0) },
-    { name: p.elite_name || 'ELITE', price: Number(p.elite_price || 0) }
-  ]
-});
+const PRODUCT_CATS = ['gear', 'supplements', 'hardware'];
+
+const mapProduct = (p: any): Product => {
+  const cat = (p.category || '').toLowerCase();
+  const isPhysical = PRODUCT_CATS.some(c => cat.includes(c));
+  
+  let tiers: ProductTier[];
+  if (isPhysical) {
+    // Products only have ONE price
+    tiers = [{ name: 'Үнэ', price: Number(p.basic_price || p.pro_price || 0) }];
+  } else {
+    // Services: include all non-zero tiers
+    const all = [
+      { name: p.basic_name || 'BASIC', price: Number(p.basic_price || 0) },
+      { name: p.pro_name || 'PRO', price: Number(p.pro_price || 0) },
+      { name: p.elite_name || 'ELITE', price: Number(p.elite_price || 0) },
+    ];
+    tiers = all.filter(t => t.price > 0);
+    if (tiers.length === 0) tiers = [all[0]]; // fallback
+  }
+
+  return { ...p, tiers };
+};
 
 export const products = {
   list: (params?: { category?: string; search?: string }) => {
