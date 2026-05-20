@@ -70,15 +70,18 @@ export default function Checkout() {
   const selectedTier = product.tiers?.[tierIndex] || product.tiers?.[0] || { name: 'PRO', price: product.pro_price || 0 };
   const displayPrice = selectedTier.price;
   const totalWithFee = Math.round(displayPrice * 1.025);
+  // Always map to DB tier key by index regardless of custom tier names
+  const TIER_DB_KEYS = ['BASIC', 'PRO', 'ELITE', 'PRO', 'PRO'];
+  const tierDbKey = TIER_DB_KEYS[tierIndex] ?? 'PRO';
 
   const handlePay = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setIsProcessing(true);
     try {
       if (isEscrow) {
-        await escrow.create(product.id, selectedTier.name.toUpperCase());
+        await escrow.create(product.id, tierDbKey);
       } else {
-        await ordersApi.create(product.id, selectedTier.name.toUpperCase());
+        await ordersApi.create(product.id, tierDbKey);
       }
       setIsPaid(true);
       setTimeout(() => navigate('/orders'), 4000);
@@ -101,36 +104,52 @@ export default function Checkout() {
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center max-w-lg"
+          className="text-center max-w-lg w-full"
         >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="w-32 h-32 rounded-full bg-green-500/10 border-2 border-green-500/30 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-green-500/20"
+            className={`w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl ${
+              isEscrow
+                ? 'bg-yellow-500/10 border-2 border-yellow-500/30 shadow-yellow-500/20'
+                : 'bg-green-500/10 border-2 border-green-500/30 shadow-green-500/20'
+            }`}
           >
-            <CheckCircle className="w-16 h-16 text-green-400" />
+            {isEscrow
+              ? <ShieldCheck className="w-16 h-16 text-yellow-400" />
+              : <CheckCircle className="w-16 h-16 text-green-400" />}
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <h2 className="text-4xl font-display font-bold text-on-surface mb-3">
-              {isEscrow ? 'Дундын данс нээгдлээ!' : 'Захиалга амжилттай!'}
+            <h2 className={`text-4xl font-display font-bold mb-3 ${
+              isEscrow ? 'text-yellow-400' : 'text-green-400'
+            }`}>
+              {isEscrow ? '✅ Мөнгө дундын дансанд орлоо!' : '✅ Захиалга амжилттай!'}
             </h2>
             <p className="text-on-surface-variant text-lg mb-2">
               <span className="text-on-surface font-bold">{product?.title}</span> — <span className="text-primary font-bold">{selectedTier?.name}</span>
             </p>
-            <p className="text-on-surface-variant mb-8">
+            <p className="text-on-surface-variant mb-8 leading-relaxed">
               {isEscrow
-                ? 'Таны мөнгийг дундын дансанд байршуулалаа. Борлуулагч мэдээллээ оруулсны дараа дундын зуучлагч шалгана.'
-                : 'Таны захиалга амжилттай бүртгэгдлээ. Борлуулагч тантай холбогдох болно.'}
+                ? 'Таны ₮' + totalWithFee.toLocaleString() + ' дундын дансанд байршлаа. Борлуулагч мэдээллээ оруулсны дараа дундын зуучлагч (модератор) шалгаж, та дансны мэдээллийг авна.'
+                : 'Таны захиалга амжилттай бүртгэгдлээ. Борлуулагч тантай удахгүй холбогдох болно.'}
             </p>
-            <div className="bg-surface-container-high/50 rounded-2xl p-6 mb-8 text-left space-y-3">
+            <div className={`rounded-2xl p-6 mb-8 text-left space-y-3 border ${
+              isEscrow ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-green-500/5 border-green-500/20'
+            }`}>
               <div className="flex justify-between text-sm">
                 <span className="text-on-surface-variant">Захиалгын дүн</span>
                 <span className="font-bold text-on-surface">₮{totalWithFee.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">Бүтээгдэхүүн</span>
+                <span className="font-bold text-on-surface">{product?.title}</span>
+              </div>
+              <div className="flex justify-between text-sm">
                 <span className="text-on-surface-variant">Төрөл</span>
-                <span className="font-bold text-primary">{isEscrow ? 'ДУНДЫН ДАНС' : 'ШУУД ЗАХИАЛГА'}</span>
+                <span className={`font-black text-xs uppercase tracking-widest ${
+                  isEscrow ? 'text-yellow-400' : 'text-green-400'
+                }`}>{isEscrow ? '🔒 ДУНДЫН ДАНС — БАТАЛГААТ' : '⚡ ШУУД ЗАХИАЛГА'}</span>
               </div>
             </div>
             <p className="text-xs text-on-surface-variant animate-pulse">Захиалгын хуудас руу шилжиж байна...</p>

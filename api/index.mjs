@@ -329,8 +329,9 @@ app.post('/api/escrow/:id/verify', adminAuth, async (req, res) => {
   await sql`UPDATE users SET balance = balance + ${trade[0].amount} WHERE id = ${trade[0].seller_id}`;
   
   const n1 = randomUUID(), n2 = randomUUID();
-  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n1}, ${trade[0].buyer_id}, 'ESCROW', ${'Middleman verified Trade #' + id.slice(0,8) + '! Account Credentials: ' + trade[0].account_credentials})`;
-  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n2}, ${trade[0].seller_id}, 'ESCROW', ${'Middleman verified Trade #' + id.slice(0,8) + '! ₮' + Number(trade[0].amount).toLocaleString() + ' has been released to your balance.'})`;
+  const credInfo = trade[0].account_credentials ? ('\n\n🔑 Дансны мэдээлэл:\n' + trade[0].account_credentials) : '';
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n1}, ${trade[0].buyer_id}, 'ESCROW', ${'✅ Дундын зуучлагч гүйлгээ #' + id.slice(0,8) + '-г баталгаажууллаа! Таны захиалга бэлэн болсон байна.' + credInfo})`;
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n2}, ${trade[0].seller_id}, 'ESCROW', ${'✅ Дундын зуучлагч гүйлгээ #' + id.slice(0,8) + '-г баталгаажууллаа! ₮' + Number(trade[0].amount).toLocaleString() + ' таны үлдэгдэлд нэмэгдлээ.'})`;
   
   res.json({ success: true });
 });
@@ -344,8 +345,8 @@ app.post('/api/escrow/:id/cancel', adminAuth, async (req, res) => {
   await sql`UPDATE users SET balance = balance + ${trade[0].amount} WHERE id = ${trade[0].buyer_id}`;
   
   const n1 = randomUUID(), n2 = randomUUID();
-  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n1}, ${trade[0].buyer_id}, 'ESCROW', ${'Middleman cancelled Trade #' + id.slice(0,8) + '. ₮' + Number(trade[0].amount).toLocaleString() + ' has been refunded to your balance.'})`;
-  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n2}, ${trade[0].seller_id}, 'ESCROW', ${'Middleman cancelled Trade #' + id.slice(0,8) + ' due to invalid credentials.'})`;
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n1}, ${trade[0].buyer_id}, 'ESCROW', ${'❌ Дундын зуучлагч гүйлгээ #' + id.slice(0,8) + '-г цуцаллаа. ₮' + Number(trade[0].amount).toLocaleString() + ' таны үлдэгдэлд буцаагдлаа.'})`;
+  await sql`INSERT INTO notifications (id, user_id, type, content) VALUES (${n2}, ${trade[0].seller_id}, 'ESCROW', ${'❌ Дундын зуучлагч гүйлгээ #' + id.slice(0,8) + '-г цуцаллаа. Дансны мэдээлэл баталгаажаагүй тул гүйлгээ хаагдлаа.'})`;
   
   res.json({ success: true });
 });
@@ -356,11 +357,17 @@ app.get('/api/notifications', auth, async (req, res) => {
     const formatted = list.map(n => ({
       id: n.id,
       type: n.type,
-      title: n.type === 'ORDER' ? 'Шинэ захиалга' : n.type === 'MESSAGE' ? 'Шинэ зурвас' : 'Системийн мэдэгдэл',
+      title: n.type === 'ORDER' ? '🛒 Шинэ захиалга'
+           : n.type === 'MESSAGE' ? '💬 Шинэ зурвас'
+           : n.type === 'ESCROW' ? '🔒 Дундын данс'
+           : '🔔 Системийн мэдэгдэл',
       message: n.content,
       read: n.read,
       created_at: n.created_at,
-      link: n.type === 'ORDER' ? '/orders' : n.type === 'MESSAGE' ? '/messages' : '#',
+      link: n.type === 'ORDER' ? '/orders'
+          : n.type === 'MESSAGE' ? '/messages'
+          : n.type === 'ESCROW' ? '/orders?tab=escrow'
+          : '#',
     }));
     res.json(formatted);
   } catch (e) {

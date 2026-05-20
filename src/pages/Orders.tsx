@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, Calendar, ArrowRight, Tag, Clock, AlertCircle, ShieldCheck, Key, CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { orders, auth, escrow, isLoggedIn, type Order, type EscrowTrade } from '../lib/api';
 import { cn } from '../lib/utils';
 
 export default function Orders() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'orders' | 'escrow'>('orders');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<'orders' | 'escrow'>(
+    searchParams.get('tab') === 'escrow' ? 'escrow' : 'orders'
+  );
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [escrowTrades, setEscrowTrades] = useState<EscrowTrade[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
