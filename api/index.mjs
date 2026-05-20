@@ -236,6 +236,7 @@ app.get('/api/orders', auth, async (req, res) => {
 });
 
 app.post('/api/orders', auth, async (req, res) => {
+  await initDb();
   const { productId, tier } = req.body;
   const product = await sql`SELECT * FROM products WHERE id = ${productId}`;
   if (!product[0]) return res.status(404).json({ error: 'Product not found' });
@@ -286,6 +287,7 @@ app.post('/api/admin/users/:id/set-rank', adminOrOwnerAuth, async (req, res) => 
 
 // --- ESCROW MIDDLEMAN TRADE ROUTES ---
 app.post('/api/escrow/create', auth, async (req, res) => {
+  await initDb();
   const { productId, tier, paymentMethod } = req.body;
   const product = await sql`SELECT * FROM products WHERE id = ${productId}`;
   if (!product[0]) return res.status(404).json({ error: 'Product not found' });
