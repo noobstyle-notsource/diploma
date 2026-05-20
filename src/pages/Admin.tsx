@@ -317,8 +317,13 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  {trade.status === 'PENDING_MIDDLEMAN_VERIFICATION' && (
+                  {(trade.status === 'PENDING_MIDDLEMAN_VERIFICATION' || trade.status === 'PENDING_SELLER_CREDS') && (
                     <div className="bg-surface-container-high/60 border border-outline-variant/10 rounded-3xl p-6 mb-6 space-y-4">
+                      {trade.status === 'PENDING_SELLER_CREDS' && (
+                        <div className="text-xs text-yellow-500 font-bold bg-yellow-500/10 border border-yellow-500/20 px-4 py-2 rounded-xl flex items-center gap-2">
+                          ⚠️ Борлуулагч одоогоор системд дансны мэдээллээ оруулаагүй байна (Чатаар илгээсэн байж магадгүй).
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-yellow-400">
                         <Key className="w-4 h-4" /> Борлуулагчийн илгээсэн дансны мэдээлэл:
                       </div>

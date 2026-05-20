@@ -321,7 +321,9 @@ app.get('/api/escrow/list', auth, async (req, res) => {
 app.post('/api/escrow/:id/verify', adminAuth, async (req, res) => {
   const { id } = req.params;
   const trade = await sql`SELECT * FROM escrow_trades WHERE id = ${id}`;
-  if (!trade[0] || trade[0].status !== 'PENDING_MIDDLEMAN_VERIFICATION') return res.status(400).json({ error: 'Trade not pending verification' });
+  if (!trade[0] || (trade[0].status !== 'PENDING_MIDDLEMAN_VERIFICATION' && trade[0].status !== 'PENDING_SELLER_CREDS')) {
+    return res.status(400).json({ error: 'Trade not pending verification or credentials' });
+  }
   
   await sql`UPDATE escrow_trades SET status = 'COMPLETED', middleman_id = ${req.user.id} WHERE id = ${id}`;
   await sql`UPDATE users SET balance = balance + ${trade[0].amount} WHERE id = ${trade[0].seller_id}`;
