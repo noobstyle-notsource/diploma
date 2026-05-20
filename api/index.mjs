@@ -35,35 +35,50 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Database Initialization (Runs once per serverless instance cold start)
+let _dbReady = false;
 async function initDb() {
+  if (_dbReady) return;
   await sql`CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT UNIQUE NOT NULL, email TEXT UNIQUE NOT NULL, password TEXT NOT NULL, avatar TEXT DEFAULT '', rank TEXT DEFAULT 'OPERATOR', bio TEXT DEFAULT '', balance REAL DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS products (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), title TEXT NOT NULL, description TEXT DEFAULT '', category TEXT DEFAULT 'BOOSTING', wear_condition TEXT DEFAULT 'Brand New', region TEXT DEFAULT 'GLOBAL', tag TEXT DEFAULT '', basic_price REAL DEFAULT 0, pro_price REAL DEFAULT 0, elite_price REAL DEFAULT 0, basic_name TEXT DEFAULT 'BASIC', pro_name TEXT DEFAULT 'PRO', elite_name TEXT DEFAULT 'ELITE', per_unit TEXT DEFAULT '/session', features JSONB DEFAULT '[]', images JSONB DEFAULT '[]', icon TEXT DEFAULT '🎮', status TEXT DEFAULT 'ACTIVE', created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS conversations (id TEXT PRIMARY KEY, buyer_id TEXT NOT NULL REFERENCES users(id), seller_id TEXT NOT NULL REFERENCES users(id), product_id TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS messages (id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL REFERENCES conversations(id), sender_id TEXT NOT NULL REFERENCES users(id), text TEXT NOT NULL, read BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS orders (id TEXT PRIMARY KEY, buyer_id TEXT NOT NULL REFERENCES users(id), product_id TEXT NOT NULL REFERENCES products(id), tier TEXT DEFAULT 'PRO', status TEXT DEFAULT 'PENDING', total REAL DEFAULT 0, created_at TIMESTAMPTZ DEFAULT NOW())`;
-  await sql`CREATE TABLE IF NOT EXISTS notifications (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), type TEXT NOT NULL, content TEXT NOT NULL, read BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW())`;
+  await sql`CREATE TABLE IF NOT EXISTS notifications (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), type TEXT NOT NULL, read BOOLEAN DEFAULT FALSE, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS escrow_trades (id TEXT PRIMARY KEY, buyer_id TEXT NOT NULL REFERENCES users(id), seller_id TEXT NOT NULL REFERENCES users(id), product_id TEXT NOT NULL REFERENCES products(id), amount REAL DEFAULT 0, account_credentials TEXT DEFAULT '', status TEXT DEFAULT 'PENDING_SELLER_CREDS', middleman_id TEXT, created_at TIMESTAMPTZ DEFAULT NOW())`;
   await sql`CREATE TABLE IF NOT EXISTS withdrawals (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), amount REAL NOT NULL, bank_name TEXT NOT NULL, account_number TEXT NOT NULL, account_holder TEXT NOT NULL, status TEXT DEFAULT 'PENDING', created_at TIMESTAMPTZ DEFAULT NOW())`;
-  try { 
-    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS wear_condition TEXT DEFAULT 'Brand New'`;
-    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS basic_price REAL DEFAULT 0`;
-    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS pro_price REAL DEFAULT 0`;
-    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS elite_price REAL DEFAULT 0`;
-    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS basic_name TEXT DEFAULT 'BASIC'`;
-    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS pro_name TEXT DEFAULT 'PRO'`;
-    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS elite_name TEXT DEFAULT 'ELITE'`;
-    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS per_unit TEXT DEFAULT '/session'`;
-    await sql`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS content TEXT DEFAULT ''`;
-    await sql`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS title TEXT DEFAULT ''`;
-    await sql`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS message TEXT DEFAULT ''`;
-    await sql`ALTER TABLE notifications ALTER COLUMN title SET DEFAULT ''`;
-    await sql`ALTER TABLE notifications ALTER COLUMN title DROP NOT NULL`;
-    await sql`ALTER TABLE notifications ALTER COLUMN message SET DEFAULT ''`;
-    await sql`ALTER TABLE notifications ALTER COLUMN message DROP NOT NULL`;
-    await sql`ALTER TABLE notifications ALTER COLUMN content SET DEFAULT ''`;
-    await sql`ALTER TABLE notifications ALTER COLUMN content DROP NOT NULL`;
-  } catch {}
+  // Each migration in its own try/catch so one failure doesn't block the rest
+  const migrations = [
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS wear_condition TEXT DEFAULT 'Brand New'`,
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS basic_price REAL DEFAULT 0`,
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS pro_price REAL DEFAULT 0`,
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS elite_price REAL DEFAULT 0`,
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS basic_name TEXT DEFAULT 'BASIC'`,
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS pro_name TEXT DEFAULT 'PRO'`,
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS elite_name TEXT DEFAULT 'ELITE'`,
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS per_unit TEXT DEFAULT '/session'`,
+    `ALTER TABLE notifications ADD COLUMN IF NOT EXISTS content TEXT DEFAULT ''`,
+    `ALTER TABLE notifications ADD COLUMN IF NOT EXISTS title TEXT DEFAULT ''`,
+    `ALTER TABLE notifications ADD COLUMN IF NOT EXISTS message TEXT DEFAULT ''`,
+    `ALTER TABLE notifications ALTER COLUMN title SET DEFAULT ''`,
+    `ALTER TABLE notifications ALTER COLUMN title DROP NOT NULL`,
+    `ALTER TABLE notifications ALTER COLUMN message SET DEFAULT ''`,
+    `ALTER TABLE notifications ALTER COLUMN message DROP NOT NULL`,
+    `ALTER TABLE notifications ALTER COLUMN content SET DEFAULT ''`,
+    `ALTER TABLE notifications ALTER COLUMN content DROP NOT NULL`,
+    `ALTER TABLE notifications ALTER COLUMN type SET DEFAULT 'SYSTEM'`,
+    `ALTER TABLE notifications ALTER COLUMN type DROP NOT NULL`,
+  ];
+  for (const m of migrations) {
+    try { await sql(m); } catch (e) { console.warn('Migration skipped:', m, e.message); }
+  }
+  _dbReady = true;
 }
+
+// Auto-run initDb on first API request
+app.use(async (req, res, next) => {
+  try { await initDb(); } catch (e) { console.error('initDb error:', e); }
+  next();
+});
 
 // Middleware
 const auth = async (req, res, next) => {
@@ -181,7 +196,6 @@ app.get('/api/products/:id', async (req, res) => {
 });
 
 app.post('/api/products', auth, async (req, res) => {
-  await initDb(); // Ensure schema is up to date before inserting
   const id = randomUUID();
   const { title, description, category, wearCondition, basicPrice, proPrice, elitePrice, basicName, proName, eliteName, perUnit, images } = req.body;
   await sql`INSERT INTO products (id, user_id, title, description, category, wear_condition, basic_price, pro_price, elite_price, basic_name, pro_name, elite_name, per_unit, images) VALUES (${id}, ${req.user.id}, ${title}, ${description}, ${category}, ${wearCondition || 'Brand New'}, ${basicPrice}, ${proPrice}, ${elitePrice}, ${basicName}, ${proName}, ${eliteName}, ${perUnit}, ${JSON.stringify(images)})`;
@@ -244,7 +258,6 @@ app.get('/api/orders', auth, async (req, res) => {
 });
 
 app.post('/api/orders', auth, async (req, res) => {
-  await initDb();
   const { productId, tier } = req.body;
   const product = await sql`SELECT * FROM products WHERE id = ${productId}`;
   if (!product[0]) return res.status(404).json({ error: 'Product not found' });
@@ -295,7 +308,6 @@ app.post('/api/admin/users/:id/set-rank', adminOrOwnerAuth, async (req, res) => 
 
 // --- ESCROW MIDDLEMAN TRADE ROUTES ---
 app.post('/api/escrow/create', auth, async (req, res) => {
-  await initDb();
   const { productId, tier, paymentMethod } = req.body;
   const product = await sql`SELECT * FROM products WHERE id = ${productId}`;
   if (!product[0]) return res.status(404).json({ error: 'Product not found' });
@@ -478,7 +490,6 @@ app.post('/api/notifications/read-all', auth, async (req, res) => {
 });
 
 app.get('/api/health', async (req, res) => {
-  await initDb();
   res.json({ status: 'OK', db: 'NEON_POSTGRES' });
 });
 
