@@ -1,5 +1,5 @@
-// api/index.mjs — Zen-Gamer Vercel-Compatible Backend
 import express from 'express';
+import 'express-async-errors';
 import cors from 'cors';
 import https from 'https';
 import { neon } from '@neondatabase/serverless';
@@ -487,6 +487,12 @@ app.post('/api/gemini', (req, res) => {
   upstream.on('error', (e) => { res.writeHead(502); res.end(`Proxy error: ${e.message}`); });
   upstream.write(body);
   upstream.end();
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('API Error:', err);
+  res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
 
 export default app;
